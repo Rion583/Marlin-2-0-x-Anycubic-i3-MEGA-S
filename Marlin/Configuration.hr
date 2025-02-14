@@ -19,7 +19,7 @@
 * zusammen mit diesem Programm. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
 *
 */
-#pragma einmal
+#pragma once
 
 /**
 * Configuration.h
