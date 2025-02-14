@@ -1,24 +1,25 @@
 /**
-* Marlin 3D-Drucker-Firmware
-* Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
-*
-* Basierend auf Sprinter und grbl.
-* Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
-*
-* Dieses Programm ist freie Software: Sie können es weitergeben und/oder ändern
-* es unterliegt den Bedingungen der GNU General Public License, wie veröffentlicht von
-* die Free Software Foundation, entweder Version 3 der Lizenz oder
-* (nach Ihrer Wahl) jede spätere Version.
-*
-* Dieses Programm wird in der Hoffnung verbreitet, dass es nützlich sein wird,
-* jedoch OHNE JEGLICHE GARANTIE; ohne die implizite Garantie von
-* MARKTGÄNGIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK. Siehe
-* GNU General Public License für weitere Einzelheiten.
-*
-* Sie sollten eine Kopie der GNU General Public License erhalten haben
-* zusammen mit diesem Programm. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
-*
-*/
+ * Marlin 3D-Drucker-Firmware
+ * Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+ *
+ * Basierend auf Sprinter und grbl.
+ * Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+ *
+ * Dieses Programm ist freie Software: Sie können es weitergeben und/oder ändern
+ * es unterliegt den Bedingungen der GNU General Public License, wie veröffentlicht von
+ * die Free Software Foundation, entweder Version 3 der Lizenz oder
+ * (nach Ihrer Wahl) jede spätere Version.
+ *
+ * Dieses Programm wird in der Hoffnung verbreitet, dass es nützlich sein wird,
+ * jedoch OHNE JEGLICHE GARANTIE; ohne die implizite Garantie von
+ * MARKTGÄNGIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK. Siehe
+ * GNU General Public License für weitere Einzelheiten.
+ *
+ * Sie sollten eine Kopie der GNU General Public License erhalten haben
+ * zusammen mit diesem Programm. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
+ *
+ */
+
 #pragma once
 
 /**
