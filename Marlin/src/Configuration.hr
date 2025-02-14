@@ -1,0 +1,4030 @@
+/**
+* Marlin 3D-Drucker-Firmware
+* Copyright (c) 2020 MarlinFirmware [https://github.com/MarlinFirmware/Marlin]
+*
+* Basierend auf Sprinter und grbl.
+* Copyright (c) 2011 Camiel Gubbels / Erik van der Zalm
+*
+* Dieses Programm ist freie Software: Sie können es weitergeben und/oder ändern
+* es unterliegt den Bedingungen der GNU General Public License, wie veröffentlicht von
+* die Free Software Foundation, entweder Version 3 der Lizenz oder
+* (nach Ihrer Wahl) jede spätere Version.
+*
+* Dieses Programm wird in der Hoffnung verbreitet, dass es nützlich sein wird,
+* jedoch OHNE JEGLICHE GARANTIE; ohne die implizite Garantie von
+* MARKTGÄNGIGKEIT oder EIGNUNG FÜR EINEN BESTIMMTEN ZWECK. Siehe
+* GNU General Public License für weitere Einzelheiten.
+*
+* Sie sollten eine Kopie der GNU General Public License erhalten haben
+* zusammen mit diesem Programm. Wenn nicht, siehe <https://www.gnu.org/licenses/>.
+*
+*/
+#pragma einmal
+
+/**
+* Configuration.h
+*
+* Grundeinstellungen wie:
+*
+* - Art der Elektronik
+* - Typ des Temperatursensors
+* - Druckergeometrie
+* - Endstop-Konfiguration
+* - LCD-Controller
+* - Zusätzliche Funktionen
+*
+* Erweiterte Einstellungen finden Sie in Configuration_adv.h
+*/
+#define CONFIGURATION_H_VERSION 02010205
+#definieren Sie ANYCUBIC_TOUCHSCREEN
+#define KNUTWURST_SPECIAL_MENU
+// #definieren Sie ANYCUBIC_TFT_DEBUG
+// #define STROMAUSFALLTEST
+
+#LCD_SERIAL_PORT 3 definieren
+
+/*
+* Diese Funktion dient nur zu Debugzwecken.
+* Es ermöglichte mehr Konsolenausgabe und sollte
+* in der Produktion deaktiviert. Dies kann dazu führen, dass
+* Drucker stottert.
+*/
+// #define KNUTWURST_DEBUG
+
+/*
+* Passen Sie die Trigorilla-Pin-Zuordnung an.
+*/
+#wenn AKTIVIERT(KNUTWURST_CHIRON)
+#define TRIGORILLA_MAPPING_CHIRON
+#define NO_AUTO_ASSIGN_WARNING
+#anders
+#define TRIGORILLA_MAPPING_I3MEGA
+#define SWAP_Z_MOTORS
+#endif
+
+/*
+* Dadurch wird die integrierte Lasergravurfunktion aktiviert
+* im Anycubic-Touchscreen. Derzeit ist es nur
+* wird vom Anycubic MEGA Pro unterstützt und ist daher
+* wird automatisch gesetzt, wenn MEGA_P aktiviert ist.
+*
+*/
+#wenn AKTIVIERT(KNUTWURST_MEGA_P)
+// #define KNUTWURST_MEGA_P_LASER
+#endif
+
+/*
+* Um die korrekte Endstopp-Konfiguration sicherzustellen,
+* dies muss aktiviert werden, um das Motherboard zu ändern
+* Konfiguration für die 4MAX Druckerfamilie
+*/
+#wenn AKTIVIERT(KNUTWURST_4MAXP2)
+#define ANYCUBIC_4_MAX_PRO_ENDSTOPS
+#define NO_AUTO_ASSIGN_WARNING
+#endif
+
+
+//=======================================================================
+//============================= Erste Schritte =============================
+//=======================================================================
+
+/**
+* Hier sind einige nützliche Links, die Ihnen bei der Konfiguration und Kalibrierung Ihrer Maschine helfen:
+*
+* Beispielkonfigurationen: https://github.com/MarlinFirmware/Configurations/branches/all
+*
+* Průša-Rechner: https://blog.prusa3d.com/calculator_3416/
+*
+* Kalibrierungshandbücher: https://reprap.org/wiki/Calibration
+* https://reprap.org/wiki/Triffid_Hunter%27s_Calibration_Guide
+* https://web.archive.org/web/20220907014303/sites.google.com/site/repraplogphase/measurement-of-your-reprap
+* https://youtu.be/wAL9d7FgInk
+* https://teachingtechyt.github.io/library.html
+*
+* Kalibrierungsobjekte: https://www.thingiverse.com/thing:5573
+* https://www.thingiverse.com/thing:1278865
+*/
+
+// @Abschnittsinfo
+
+// Die Autoreninformationen zu diesem Build werden während des Bootvorgangs und M115 auf dem Host ausgedruckt.
+#define STRING_CONFIG_H_AUTHOR "(knutwurst)" // Wer hat die Änderungen vorgenommen.
+//#define CUSTOM_VERSION_FILE Version.h // Pfad vom Stammverzeichnis (ohne Anführungszeichen)
+
+/**
+* *** ANBIETER, BITTE LESEN ***
+*
+* Marlin ermöglicht Ihnen, ein benutzerdefiniertes Boot-Image für grafische LCDs hinzuzufügen.
+* Mit dieser Option zeigt Marlin zuerst Ihren benutzerdefinierten Bildschirm an, gefolgt
+* durch das Standard-Marlin-Logo mit Versionsnummer und Web-URL.
+*
+* Wir möchten Sie ermutigen, diese neue Funktion zu nutzen und wir auch
+* Wir bitten Sie höflich, den unveränderten Marlin-Startbildschirm beizubehalten.
+*/
+
+// Den Marlin-Bootbildschirm beim Start anzeigen. ** FÜR PRODUKTION AKTIVIEREN **
+#define SHOW_BOOTSCREEN
+
+// Beim Start das Bitmap in Marlin/_Bootscreen.h anzeigen.
+//#definiere SHOW_CUSTOM_BOOTSCREEN
+
+// Zeigen Sie das Bitmap in Marlin/_Statusscreen.h auf dem Statusbildschirm an.
+//#definieren Sie CUSTOM_STATUS_SCREEN_IMAGE
+
+// @Abschnittsmaschine
+
+//Wählen Sie den Namen aus boards.h, der zu Ihrem Setup passt
+#ifndef MOTHERBOARD
+#define MOTHERBOARD BOARD_RAMPS_14_EFB
+#endif
+
+// @Abschnitt seriell
+
+/**
+* Wählen Sie den seriellen Port auf der Karte aus, der für die Kommunikation mit dem Host verwendet werden soll.
+* Dies ermöglicht beispielsweise den Anschluss von Wireless-Adaptern an nicht standardmäßige Port-Pins.
+* Serieller Port -1 ist der USB-emulierte serielle Port, sofern verfügbar.
+* Hinweis: Der erste serielle Port (-1 oder 0) wird immer vom Arduino-Bootloader verwendet.
+*
+* :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
+*/
+#define SERIAL_PORT 0
+
+/**
+* Baudrate der seriellen Schnittstelle
+* Dies ist die Standardkommunikationsgeschwindigkeit für alle seriellen Schnittstellen.
+* Legen Sie unten die Baudraten-Standardwerte für zusätzliche serielle Schnittstellen fest.
+*
+* 250000 funktioniert in den meisten Fällen, aber Sie können eine niedrigere Geschwindigkeit versuchen, wenn
+* Beim Host-Drucken kommt es häufig zu Ausfällen.
+* Sie können bis zu 1.000.000 versuchen, um die SD-Dateiübertragung zu beschleunigen.
+*
+* :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000]
+*/
+#define BAUDRATE 250000
+
+//#define BAUD_RATE_GCODE // Aktiviere G-Code M575, um die Baudrate einzustellen
+
+/* EXP1-Header
+
+--------------
+|| D37 D35 ||
+|| ||
+|| [D17] [D16] || <---- Schließen Sie hier Ihr ESP8266-WLAN-Modul an (TX/RX)
+/|| ||
+||| D23 D25 ||
+\|| ||
+|| D27 D29 ||
+|| ||
+|| [GND] [5V] || <---- Schließen Sie hier Ihr ESP8266-WLAN-Modul an (GND/VIO)
+--------------
+*/
+
+/**
+* Wählen Sie einen sekundären seriellen Port auf der Karte aus, der für die Kommunikation mit dem Host verwendet werden soll.
+* Derzeit wird Ethernet (-2) nur auf Teensy 4.1-Boards unterstützt.
+* :[-2, -1, 0, 1, 2, 3, 4, 5, 6, 7]
+*/
+//#SERIAL_PORT_2 definieren 2
+//#define BAUDRATE_2 500000 // :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000] Aktivieren, um BAUDRATE zu überschreiben
+
+/**
+* Wählen Sie einen dritten seriellen Port auf der Karte aus, der für die Kommunikation mit dem Host verwendet werden soll.
+* Derzeit nur unterstützt für AVR, DUE, LPC1768/9 und STM32/STM32F1
+* :[-1, 0, 1, 2, 3, 4, 5, 6, 7]
+*/
+//#SERIAL_PORT_3 definieren 1
+//#define BAUDRATE_3 250000 // :[2400, 9600, 19200, 38400, 57600, 115200, 250000, 500000, 1000000] Aktivieren, um BAUDRATE zu überschreiben
+
+// Aktivieren Sie die serielle Bluetooth-Schnittstelle auf AT90USB-Geräten
+//#BLUETOOTH definieren
+
+// Name wird in der LCD-Meldung „Bereit“ und im Info-Menü angezeigt
+//#define CUSTOM_MACHINE_NAME "3D-Drucker"
+
+// Eindeutige ID des Druckers, die von einigen Programmen zur Unterscheidung zwischen Geräten verwendet wird.
+// Wählen Sie Ihren eigenen oder verwenden Sie einen Dienst wie https://www.uuidgenerator.net/version4
+//#definieren Sie MACHINE_UUID "00000000-0000-0000-0000-0000-000000000000"
+
+// @Abschnitt Schrittmotortreiber
+
+/**
+* Schrittmotortreiber
+*
+* Mit diesen Einstellungen kann Marlin das Timing des Schrittmotortreibers optimieren und erweiterte Optionen aktivieren für
+* Stepper-Treiber, die diese unterstützen. Sie können die Timing-Optionen auch in Configuration_adv.h überschreiben.
+*
+* Verwenden Sie TMC2208/TMC2208_STANDALONE für TMC2225-Treiber und TMC2209/TMC2209_STANDALONE für TMC2226-Treiber.
+*
+* Optionen: A4988, A5984, DRV8825, LV8729, TB6560, TB6600, TMC2100,
+* TMC2130, TMC2130_STANDALONE, TMC2160, TMC2160_STANDALONE,
+* TMC2208, TMC2208_STANDALONE, TMC2209, TMC2209_STANDALONE,
+* TMC26X, TMC26X_STANDALONE, TMC2660, TMC2660_STANDALONE,
+* TMC5130, TMC5130_STANDALONE, TMC5160, TMC5160_STANDALONE
+* :['A4988', 'A5984', 'DRV8825', 'LV8729', 'TB6560', 'TB6600', 'TMC2100', 'TMC2130', 'TMC2130_STANDALONE', 'TMC2160', 'TMC2160_STANDALONE', 'TMC2208', 'TMC2208_STANDALONE', 'TMC2209', 'TMC2209_STANDALONE', 'TMC26X', 'TMC26X_STANDALONE', 'TMC2660', 'TMC2660_STANDALONE', 'TMC5130', 'TMC5130_STANDALONE', 'TMC5160', 'TMC5160_STANDALONE']
+*/
+#wenn AKTIVIERT(KNUTWURST_TMC)
+#define X_DRIVER_TYPE TMC2208_STANDALONE
+#define Y_TREIBER_TYPE TMC2208_STANDALONE
+#define Z_DRIVER_TYPE TMC2208_STANDALONE
+// #define X2_DRIVER_TYPE A4988
+// #definieren Sie Y2_DRIVER_TYPE A4988
+#define Z2_DRIVER_TYPE TMC2208_STANDALONE
+// #define Z3_DRIVER_TYPE A4988
+// #define Z4_DRIVER_TYPE A4988
+// #define I_TREIBER_TYPE A4988
+// #definieren Sie J_DRIVER_TYPE A4988
+// #define K_DRIVER_TYPE A4988
+// #define U_DRIVER_TYPE A4988
+// #definieren Sie V_DRIVER_TYPE A4988
+// #define W_DRIVER_TYPE A4988
+#define E0_DRIVER_TYPE TMC2208_STANDALONE
+#define E1_DRIVER_TYPE TMC2208_STANDALONE
+// #define E2_DRIVER_TYPE A4988
+// #define E3_DRIVER_TYPE A4988
+// #define E4_DRIVER_TYPE A4988
+// #define E5_DRIVER_TYPE A4988
+// #define E6_DRIVER_TYPE A4988
+// #define E7_DRIVER_TYPE A4988
+#anders
+#define X_DRIVER_TYPE A4988
+#define Y_DRIVER_TYPE A4988
+#define Z_DRIVER_TYPE A4988
+// #define X2_DRIVER_TYPE A4988
+// #definieren Sie Y2_DRIVER_TYPE A4988
+#define Z2_DRIVER_TYPE A4988
+// #define Z3_DRIVER_TYPE A4988
+// #define Z4_DRIVER_TYPE A4988
+// #define I_TREIBER_TYPE A4988
+// #definieren Sie J_DRIVER_TYPE A4988
+// #define K_DRIVER_TYPE A4988
+// #define U_DRIVER_TYPE A4988
+// #definieren Sie V_DRIVER_TYPE A4988
+// #define W_DRIVER_TYPE A4988
+#define E0_DRIVER_TYPE A4988
+#define E1_DRIVER_TYPE A4988
+// #define E2_DRIVER_TYPE A4988
+// #define E3_DRIVER_TYPE A4988
+// #define E4_DRIVER_TYPE A4988
+// #define E5_DRIVER_TYPE A4988
+// #define E6_DRIVER_TYPE A4988
+// #define E7_DRIVER_TYPE A4988
+#endif // wenn AKTIVIERT(KNUTWURST_TMC)
+
+/**
+* Zusätzliche Achseneinstellungen
+*
+* Definieren Sie AXISn_ROTATES für alle Achsen, die sich drehen oder schwenken.
+* Die Koordinaten der Rotationsachsen werden in Grad ausgedrückt.
+*
+* AXISn_NAME definiert den Buchstaben, der in (den meisten) G-Code-Befehlen zum Verweisen auf die Achse verwendet wird.
+* Die Namen und Rollen lauten üblicherweise:
+* 'A': Rotationsachse parallel zu X
+* 'B': Rotationsachse parallel zu Y
+* 'C': Rotationsachse parallel zu Z
+* 'U': Sekundäre lineare Achse parallel zu X
+* 'V': Sekundäre lineare Achse parallel zu Y
+* 'W': Sekundäre lineare Achse parallel zu Z
+*
+* Unabhängig von diesen Einstellungen werden die Achsen intern mit I, J, K, U, V, W benannt.
+*/
+#ifdef I_TREIBER_TYP
+#define AXIS4_NAME 'A' // :['A', 'B', 'C', 'U', 'V', 'W']
+#define AXIS4_ROTATES
+#endif
+#ifdef J_TREIBER_TYP
+#define AXIS5_NAME 'B' // :['B', 'C', 'U', 'V', 'W']
+#define AXIS5_ROTATES
+#endif
+#ifdef K_TREIBER_TYPE
+#define AXIS6_NAME 'C' // :['C', 'U', 'V', 'W']
+#define AXIS6_ROTATES
+#endif
+#ifdef U_TREIBER_TYPE
+#define AXIS7_NAME 'U' // :['U', 'V', 'W']
+//#definieren Sie AXIS7_ROTATES
+#endif
+#ifdef V_TREIBER_TYP
+#define AXIS8_NAME 'V' // :['V', 'W']
+//#definieren Sie AXIS8_ROTATES
+#endif
+#ifdef W_TREIBER_TYPE
+#define AXIS9_NAME 'W' // :['W']
+//#definieren Sie AXIS9_ROTATES
+#endif
+
+// @Abschnittsextruder
+
+// Dies definiert die Anzahl der Extruder
+// :[0, 1, 2, 3, 4, 5, 6, 7, 8]
+#Extruder definieren 1
+
+// Im Allgemeinen erwarteter Filamentdurchmesser (1,75, 2,85, 3,0, ...). Wird für Volumenmessung, Filamentbreitensensor usw. verwendet.
+#define DEFAULT_NOMINAL_FILAMENT_DIA 1,75
+
+// Für Cyclops oder jeden „Multi-Extruder“, der eine einzige Düse gemeinsam nutzt.
+//#Einzeldüse definieren
+
+// Temperatur und Lüfterdrehzahl beim Werkzeugwechsel speichern und wiederherstellen.
+// Mit M104/106/109 T den Standby für das nicht ausgewählte Werkzeug setzen …
+#wenn AKTIVIERT(EINZELNE DÜSE)
+//#definieren Sie SINGLENOZZLE_STANDBY_TEMP
+//#definiere SINGLENOZZLE_STANDBY_FAN
+#endif
+
+// Ein Doppelextruder, der einen einzelnen Schrittmotor verwendet
+//#SWITCHING_EXTRUDER definieren
+#wenn AKTIVIERT(SWITCHING_EXTRUDER)
+#define SWITCHING_EXTRUDER_SERVO_NR 0
+#define SWITCHING_EXTRUDER_SERVO_ANGLES { 0, 90 } // Winkel für E0, E1[, E2, E3]
+#wenn EXTRUDER > 3
+#define SWITCHING_EXTRUDER_E23_SERVO_NR 1
+#endif
+#endif
+
+// Eine Doppeldüse, die einen Servomotor zum Anheben/Absenken einer (oder beider) Düsen verwendet
+//#Schaltdüse definieren
+#wenn AKTIVIERT(SCHALTDÜSE)
+#define SWITCHING_NOZZLE_SERVO_NR 0
+//#define SWITCHING_NOZZLE_E1_SERVO_NR 1 // Wenn zwei Servos verwendet werden, der Index des zweiten
+#define SWITCHING_NOZZLE_SERVO_ANGLES { 0, 90 } // Ein Winkelpaar für { E0, E1 }.
+// Für Dual Servo zwei Paare verwenden: { { senken, heben }, { senken, heben } }
+#define SWITCHING_NOZZLE_SERVO_DWELL 2500 // Verweilzeit, um auf die physische Bewegung des Servos zu warten
+#endif
+
+/**
+* Zwei separate X-Schlitten mit Extrudern, die mit einem beweglichen Teil verbunden sind
+* über einen Magnet-Andockmechanismus. Erfordert SOL1_PIN und SOL2_PIN.
+*/
+//#definiere PARKING_EXTRUDER
+
+/**
+* Zwei separate X-Schlitten mit Extrudern, die mit einem beweglichen Teil verbunden sind
+* über einen magnetischen Andockmechanismus mit Bewegungen und ohne Magnetspule
+*
+* Projekt: https://www.thingiverse.com/thing:3080893
+* Bewegungen: https://youtu.be/0xCEiG9VS3k
+* https://youtu.be/Bqbcs0CU2FE
+*/
+//#Magnetic_Parking_Extruder definieren
+
+#wenn EITHER(PARKING_EXTRUDER, MAGNETIC_PARKING_EXTRUDER)
+
+#define PARKING_EXTRUDER_PARKING_X { -78, 184 } // X-Positionen zum Parken der Extruder
+#define PARKING_EXTRUDER_GRAB_DISTANCE 1 // (mm) Distanz, die über den Parkpunkt hinaus zurückgelegt werden muss, um den Extruder zu greifen
+
+#wenn AKTIVIERT(PARKING_EXTRUDER)
+
+#define PARKING_EXTRUDER_SOLENOIDS_INVERT // Wenn aktiviert, wird der Magnet bei angelegter Spannung NICHT magnetisiert
+#define PARKING_EXTRUDER_SOLENOIDS_PINS_ACTIVE LOW // LOW- oder HIGH-Pin-Signal aktiviert die Spule
+#define PARKING_EXTRUDER_SOLENOIDS_DELAY 250 // (ms) Verzögerung für Magnetfeld. Keine Verzögerung, wenn 0 oder nicht definiert.
+//#define MANUAL_SOLENOID_CONTROL // Manuelle Steuerung der Andocksolenoide bei M380 S / M381
+
+#elif AKTIVIERT (MAGNETIC_PARKING_EXTRUDER)
+
+#define MPE_FAST_SPEED 9000 // (mm/min) Geschwindigkeit für die Fahrt vor dem letzten Distanzpunkt
+#define MPE_SLOW_SPEED 4500 // (mm/min) Geschwindigkeit für die letzte Distanz zum Parken und Kuppeln
+#define MPE_TRAVEL_DISTANCE 10 // (mm) Letzter Distanzpunkt
+#define MPE_COMPENSATION 0 // Offset Kompensation -1 , 0 , 1 (Multiplikator) nur für Kopplung
+
+#endif
+
+#endif
+
+/**
+* Werkzeugkopf wechseln
+*
+* Unterstützung für austauschbare und andockbare Werkzeugköpfe, wie
+* der E3D-Werkzeugwechsler. Werkzeugköpfe werden mit einem Servo verriegelt.
+*/
+//#SWITCHING_TOOLHEAD definieren
+
+/**
+* Magnetischer Schaltwerkzeugkopf
+*
+* Unterstützt austauschbare und andockbare Werkzeugköpfe mit einem magnetischen
+* Andockmechanismus mithilfe von Bewegung und ohne Servo.
+*/
+//#Magnetischer Schaltwerkzeugkopf definieren
+
+/**
+* Elektromagnetischer Schaltwerkzeugkopf
+*
+* Parken für CoreXY/HBot-Kinematik.
+* Werkzeugköpfe werden an einer Kante geparkt und mit einem Elektromagneten gehalten.
+* Unterstützt mehr als 2 Werkzeugköpfe. Siehe https://youtu.be/JolbsAKTKf4
+*/
+//#definieren ELEKTROMAGNETISCHER_SCHALTWERKZEUGKOPF
+
+#wenn BELIEBIG(SCHALTWERKZEUGKOPF, MAGNETISCHER SCHALTWERKZEUGKOPF, ELEKTROMAGNETISCHER SCHALTWERKZEUGKOPF)
+#define SWITCHING_TOOLHEAD_Y_POS 235 // (mm) Y-Position des Werkzeugkopf-Docks
+#define SWITCHING_TOOLHEAD_Y_SECURITY 10 // (mm) Sicherheitsabstand Y-Achse
+#define SWITCHING_TOOLHEAD_Y_CLEAR 60 // (mm) Mindestabstand vom Dock für ungehinderte X-Achse
+#define SWITCHING_TOOLHEAD_X_POS { 215, 0 } // (mm) X-Positionen zum Parken der Extruder
+#wenn AKTIVIERT(SWITCHING_TOOLHEAD)
+#define SWITCHING_TOOLHEAD_SERVO_NR 2 // Index des Servoanschlusses
+#define SWITCHING_TOOLHEAD_SERVO_ANGLES { 0, 180 } // (Grad) Winkel zum Sperren, Entsperren
+#elif AKTIVIERT (MAGNETISCHER SCHALTWERKZEUGKOPF)
+#define SWITCHING_TOOLHEAD_Y_RELEASE 5 // (mm) Sicherheitsabstand Y-Achse
+#define SWITCHING_TOOLHEAD_X_SECURITY { 90, 150 } // (mm) Sicherheitsabstand X-Achse (T0,T1)
+//#define PRIME_BEFORE_REMOVE // Die Düse vor dem Lösen aus der Dockingstation vorbereiten
+#wenn AKTIVIERT(PRIME_BEFORE_REMOVE)
+#define SWITCHING_TOOLHEAD_PRIME_MM 20 // (mm) Extruder-Primärlänge
+#define SWITCHING_TOOLHEAD_RETRACT_MM 10 // (mm) Rückzug nach Ansauglänge
+#define SWITCHING_TOOLHEAD_PRIME_FEEDRATE 300 // (mm/min) Vorschubgeschwindigkeit des Extruders
+#define SWITCHING_TOOLHEAD_RETRACT_FEEDRATE 2400 // (mm/min) Extruder-Rückzugsvorschub
+#endif
+#elif AKTIVIERT (ELEKTROMAGNETISCHER SCHALTWERKZEUGKOPF)
+#define SWITCHING_TOOLHEAD_Z_HOP 2 // (mm) Z-Anhebung zum Umschalten
+#endif
+#endif
+
+/**
+* „Mischextruder“
+* – Fügt die G-Codes M163 und M164 hinzu, um die aktuellen Mischfaktoren festzulegen und zu „festzulegen“.
+* – Erweitert die Stepping-Routinen, um mehrere Stepper proportional zum Mix zu bewegen.
+* – Optionale Unterstützung für „M164 S<index>“ der Repetier-Firmware zur Unterstützung virtueller Tools.
+* – Diese Implementierung unterstützt bis zu zwei Mischextruder.
+* – Aktivieren Sie DIRECT_MIXING_IN_G1 für M165 und Mischen in G1 (aus der Referenzimplementierung von Pia Taubert).
+*/
+//#MIXING_EXTRUDER definieren
+#wenn AKTIVIERT(MIXING_EXTRUDER)
+#define MIXING_STEPPERS 2 // Anzahl der Stepper in Ihrem Mischextruder
+#define MIXING_VIRTUAL_TOOLS 16 // Verwenden Sie die Virtual Tool-Methode mit M163 und M164
+//#define DIRECT_MIXING_IN_G1 // Erlaube ABCDHI-Mischfaktoren in G1-Bewegungsbefehlen
+//#define GRADIENT_MIX // Unterstützung für Gradientenmischung mit M166 und LCD
+//#define MIXING_PRESETS // Weisen Sie 8 Standard-V-Tool-Voreinstellungen für 2 oder 3 MIXING_STEPPERS zu
+#wenn AKTIVIERT(GRADIENT_MIX)
+//#define GRADIENT_VTOOL // Füge M166 T hinzu, um einen V-Tool-Index als Gradientenalias zu verwenden
+#endif
+#endif
+
+// Offset der Extruder (Kommentare entfernen, wenn mehr als einer verwendet wird und man sich beim Ändern auf die Firmware zur Positionierung verlässt).
+// Der Offset muss für das Extruder 0-Hotend (Standard-Extruder) X=0, Y=0 sein.
+// Bei den anderen Hotends ist es deren Abstand vom Extruder 0-Hotend.
+//#define HOTEND_OFFSET_X { 0.0, 20.00 } // (mm) relativer X-Versatz für jede Düse
+//#define HOTEND_OFFSET_Y { 0.0, 5.00 } // (mm) relativer Y-Versatz für jede Düse
+//#define HOTEND_OFFSET_Z { 0.0, 0.00 } // (mm) relativer Z-Offset für jede Düse
+
+// @Abschnitt Multimaterial
+
+/**
+* Multi-Material-Einheit
+* Auf eines dieser vordefinierten Modelle einstellen:
+*
+* PRUSA_MMU1: Test MMU1 (Die „Multiplexer“-Version)
+* PRUSA_MMU2: MMU2-Prüfer
+* PRUSA_MMU2S: Průša MMU2S (Erfordert MK3S-Extruder mit Bewegungssensor, EXTRUDERS = 5)
+* EXTENDABLE_EMU_MMU2: MMU mit konfigurierbarer Anzahl von Filamenten (ERCF, SMuFF oder ähnliches mit Průša MMU2-kompatibler Firmware)
+* EXTENDABLE_EMU_MMU2S: MMUS mit konfigurierbarer Filamentanzahl (ERCF, SMuFF oder ähnliches mit Průša MMU2-kompatibler Firmware)
+*
+* Erfordert NOZZLE_PARK_FEATURE, um den Druckkopf zu parken, falls die MMU-Einheit ausfällt.
+* Siehe zusätzliche Optionen in Configuration_adv.h.
+* :["PRUSA_MMU1", "PRUSA_MMU2", "PRUSA_MMU2S", "EXTENDABLE_EMU_MMU2", "EXTENDABLE_EMU_MMU2S"]
+*/
+// #define MMU_MODEL PRUSA_MMU2
+
+// @Abschnitt Netzteilsteuerung
+
+/**
+* Stromversorgungssteuerung
+*
+* Aktivieren und verbinden Sie die Stromversorgung mit dem PS_ON_PIN.
+* Geben Sie an, ob die Stromversorgung aktiv HIGH oder aktiv LOW ist.
+*/
+//#PSU_CONTROL definieren
+//#define PSU_NAME "Netzteil"
+
+#wenn AKTIVIERT(PSU_CONTROL)
+//#define MKS_PWC // Verwenden des MKS PWC-Add-Ons
+//#define PS_OFF_CONFIRM // Dialog beim Ausschalten bestätigen
+//#define PS_OFF_SOUND // Piepton 1 Sekunde beim Ausschalten
+#define PSU_ACTIVE_STATE LOW // Setze „LOW“ für ATX, „HIGH“ für X-Box
+
+//#define PSU_DEFAULT_OFF // Stromversorgung ausgeschaltet lassen, bis sie direkt mit M80 aktiviert wird
+//#define PSU_POWERUP_DELAY 250 // (ms) Verzögerung, bis das Netzteil die volle Leistung erreicht hat
+//#define LED_POWEROFF_TIMEOUT 10000 // (ms) Schaltet die LEDs nach dem Ausschalten mit dieser Verzögerung aus
+
+//#define POWER_OFF_TIMER // Aktiviere M81 D<Sekunden> zum Ausschalten nach einer Verzögerung
+//#define POWER_OFF_WAIT_FOR_COOLDOWN // Aktiviere M81 S so, dass es sich erst nach der Abkühlung ausschaltet
+
+//#define PSU_POWERUP_GCODE "M355 S1" // G-Code, der nach dem Einschalten ausgeführt werden soll (z. B. wenn das Gehäuselicht an ist)
+//#define PSU_POWEROFF_GCODE "M355 S0" // G-Code, der vor dem Ausschalten ausgeführt werden soll (z. B. Gehäuselicht aus)
+
+//#define AUTO_POWER_CONTROL // Automatische Steuerung des PS_ON-Pins aktivieren
+#wenn AKTIVIERT(AUTO_POWER_CONTROL)
+#define AUTO_POWER_FANS // Netzteil für Lüfter einschalten
+#define AUTO_POWER_E_FANS // Netzteil für E-Fans einschalten
+#define AUTO_POWER_CONTROLLERFAN // Netzteil für Controller-Lüfter einschalten
+#define AUTO_POWER_CHAMBER_FAN // Netzteil für Kammerlüfter einschalten
+#define AUTO_POWER_COOLER_FAN // Netzteil für Kühlerlüfter einschalten
+#define POWER_TIMEOUT 30 // (s) Schaltet die Stromversorgung ab, wenn die Maschine für diese Dauer im Leerlauf ist
+//#define POWER_OFF_DELAY 60 // (s) Verzögerung der Abschaltung nach M81-Befehl. Nützlich, um Lüfter länger laufen zu lassen.
+#endif
+#wenn EITHER(AUTO_POWER_CONTROL, POWER_OFF_WAIT_FOR_COOLDOWN)
+//#define AUTO_POWER_E_TEMP 50 // (°C) Netzteil eingeschaltet, wenn ein Extruder diese Temperatur überschreitet
+//#define AUTO_POWER_CHAMBER_TEMP 30 // (°C) Netzteil eingeschaltet, wenn die Kammertemperatur diese Temperatur überschreitet
+//#define AUTO_POWER_COOLER_TEMP 26 // (°C) Netzteil an, wenn der Kühler diese Temperatur überschreitet
+#endif
+#endif
+
+//=======================================================================
+//============================= Thermische Einstellungen ============================
+//=======================================================================
+// @Abschnittstemperatur
+
+/**
+* Temperatursensoren:
+*
+* NORMAL IST 4,7 kΩ PULLUP! Hotend-Sensoren können 1 kΩ Pullup mit dem richtigen Widerstand und der richtigen Tabelle verwenden.
+*
+* =============================================================
+* Analoge Thermistoren - 4,7 kΩ Pullup - Normal
+* =============================================================
+* 1 : 100kΩ EPCOS - Beste Wahl für EPCOS Thermistoren
+* 331: 100 kΩ Wie Nr. 1, aber 3,3 V skaliert für MEGA
+* 332: 100 kΩ Wie Nr. 1, aber 3,3 V skaliert für DUE
+* 2: 200 kΩ ATC Semitec 204GT-2
+* 202 : 200kΩ Copymaster 3D
+* 3 : ???Ω Mendel-Teile Thermistor
+* 4: 10 kΩ Generischer Thermistor!! NICHT für ein Hotend verwenden – bei hohen Temperaturen ergibt sich eine schlechte Auflösung.!!
+* 5: 100 kΩ ATC Semitec 104GT-2/104NT-4-R025H42G – Wird in ParCan, J-Head und E3D, SliceEngineering 300 °C verwendet
+* 501: 100 kΩ Zonestar - Tronxy X3A
+* 502: 100 kΩ Zonestar – wird vom Heizbett im Zonestar Průša P802M verwendet
+* 503: 100 kΩ Zonestar (Z8XM2) Heizbett-Thermistor
+* 504: 100 kΩ Zonestar P802QR2 (Teilenummer QWG-104F-B3950) Hotend-Thermistor
+* 505: 100 kΩ Zonestar P802QR2 (Teilenummer QWG-104F-3950) Bettthermistor
+* 512: 100 kΩ RPW-Ultra-Hotend
+* 6: 100 kΩ EPCOS – Nicht so genau wie Tabelle Nr. 1 (erstellt mit einem Fluke-Thermoelement)
+* 7: 100 kΩ Honeywell 135-104LAG-J01
+* 71: 100 kΩ Honeywell 135-104LAF-J01
+* 8: 100 kΩ Vishay 0603 SMD NTCS0603E3104FXT
+* 9: 100 kΩ GE Sensing AL03006-58.2K-97-G1
+* 10: 100 kΩ RS PRO 198-961
+* 11: 100 kΩ Keenovo AC-Silikonmatten, die meisten Wanhao i3-Maschinen – Beta 3950, 1 %
+* 12: 100 kΩ Vishay 0603 SMD NTCS0603E3104FXT (#8) – kalibriert für Makibox-Heizbett
+* 13: 100kΩ Hisens bis 300°C - für "Simple ONE" & "All In ONE" Hotend - Beta 3950, 1%
+* 14: 100 kΩ (R25), 4092 K (beta25), 4,7 kΩ Pull-up, Bett-Thermistor wie in Ender-5 S1 verwendet
+* 15: 100 kΩ kalibriert für JGAurora A5 Hotend
+* 17: 100 kΩ weißer Dagoma NTC-Thermistor
+* 18: 200 kΩ ATC Semitec 204GT-2 Dagoma.Fr - MKS_Base_DKU001327
+* 22: 100 kΩ GTM32 Pro vB - Hotend - 4,7 kΩ Pullup auf 3,3 V und 220 Ω zum analogen Eingang
+* 23: 100 kΩ GTM32 Pro vB - Bett - 4,7 kΩ Pullup auf 3,3 V und 220 Ω zum analogen Eingang
+* 30 : 100kΩ Kis3d Silikon Heizmatte 200W/300W mit 6mm Präzisionsgussplatte (EN AW 5083) NTC100K - beta 3950
+* 60: 100 kΩ Maker's Tool Works Kapton-Bett-Thermistor - Beta 3950
+* 61: 100 kΩ Formbot/Vivedino 350 °C Thermistor – Beta 3950
+* 66: 4,7 MΩ Dyze Design / Trianglelab T-D500 500 °C Hochtemperatur-Thermistor
+* 67: 500 kΩ SliceEngineering 450 °C-Thermistor
+* 68: PT100 Smplifier-Board von Dyze Design
+* 70 : 100kΩ bq Hephestos 2
+* 75: 100 kΩ Generisches Silikon-Heizkissen mit NTC100K MGB18-104F39050L32
+* 666: 200 kΩ Einstart S-Sonderthermistor mit 10 k Pullup.
+* 2000: 100 kΩ Ultimachine Rambo TDK NTCG104LH104KT1 NTC100K-Motherboard-Thermistor
+*
+* =============================================================
+* Analoge Thermistoren - 1kΩ Pullup
+* Untypisch und erfordert den Austausch des 4,7-kΩ-Pullups gegen 1 kΩ.
+* (bietet jedoch höhere Genauigkeit und stabileres PID)
+* =============================================================
+* 51: 100 kΩ EPCOS (1 kΩ Pullup)
+* 52: 200 kΩ ATC Semitec 204GT-2 (1 kΩ Pullup)
+* 55: 100 kΩ ATC Semitec 104GT-2 – Wird in ParCan und J-Head verwendet (1 kΩ Pullup)
+*
+* =============================================================
+* Analoge Thermistoren - 10kΩ Pullup - Atypisch
+* =============================================================
+* 99: 100 kΩ. Auf einigen Wanhao i3-Maschinen mit einem 10 kΩ Pull-Up-Widerstand vorhanden.
+*
+* =============================================================
+* Analoge RTDs (Pt100/Pt1000)
+* =============================================================
+* 110: Pt100 mit 1kΩ Pullup (untypisch)
+* 147: Pt100 mit 4,7 kΩ Pullup
+* 1010: Pt1000 mit 1kΩ Pullup (untypisch)
+* 1022: Pt1000 mit 2,2 kΩ Pullup
+* 1047: Pt1000 mit 4,7 kΩ Pullup (E3D)
+* 20 : Pt100 mit Beschaltung im Ultimainboard V2.x mit Mainboard ADC Referenzspannung = INA826 Verstärkerplatinen Versorgungsspannung.
+* HINWEIS: (1) Es muss ein ADC-Eingang ohne Pullup verwendet werden. (2) Einige INA826-Verstärker sind bei 3,3 V unzuverlässig. Erwägen Sie daher die Verwendung von Sensor 147, 110 oder 21.
+* 21: Pt100 mit Schaltung im Ultimainboard V2.x mit 3,3V ADC-Referenzspannung (STM32, LPC176x...) und 5V INA826 Verstärkerplatinenversorgung.
+* HINWEIS: ADC-Pins sind nicht 5 V-tolerant. Nicht empfohlen, da die CPU bei über 500 °C beschädigt werden kann.
+* 201 : Pt100 mit Schaltung in Overlord, ähnlich Ultimainboard V2.x
+*
+* =============================================================
+* SPI RTD/Thermoelement-Platinen
+* =============================================================
+* -5: MAX31865 mit Pt100/Pt1000, 2-, 3- oder 4-Leiter (nur für Sensoren 0-2 und Bett)
+* HINWEIS: Sie müssen die unten stehenden Definitionen MAX31865_*_OHMS_n auskommentieren/festlegen.
+* -3: MAX31855 mit Thermoelement, -200°C bis +700°C (nur für Sensoren 0-2 und Bett)
+* -2: MAX6675 mit Thermoelement, 0°C bis +700°C (nur für Sensoren 0-2 und Bett)
+*
+* HINWEIS: Stellen Sie sicher, dass TEMP_n_CS_PIN in Ihrer Pin-Datei für jeden TEMP_SENSOR_n mit einem SPI-Thermoelement festgelegt ist. Standardmäßig
+* Es wird Hardware-SPI auf dem Standard-Seriellenbus verwendet. Wenn Sie auch TEMP_n_SCK_PIN und TEMP_n_MISO_PIN eingestellt haben,
+* Stattdessen wird Software-SPI auf diesen Ports verwendet. Sie können Hardware-SPI auf dem Standardbus im
+* Datei Configuration_adv.h. Derzeit werden separate Hardware-SPI-Busse für Sensoren nicht unterstützt.
+*
+* =============================================================
+* Analoge Thermoelementplatinen
+* =============================================================
+* -4: AD8495 mit Thermoelement
+* -1: AD595 mit Thermoelement
+*
+* =============================================================
+* Benutzerdefinierte/Dummy-/Andere Wärmesensoren
+* =============================================================
+* 0 : nicht verwendet
+* 1000: Benutzerdefiniert – Geben Sie die Parameter in Configuration_adv.h an
+*
+* !!! Verwenden Sie diese zu Test- oder Entwicklungszwecken. NIEMALS für Produktionsmaschinen. !!!
+* 998: Dummy-Tabelle, die IMMER 25 °C oder die unten definierte Temperatur anzeigt.
+* 999: Dummy-Tabelle, die IMMER 100 °C oder die unten definierte Temperatur anzeigt.
+*/
+#wenn AKTIVIERT(KNUTWURST_4MAXP2)
+#define TEMP_SENSOR_0 11
+#anders
+#define TEMP_SENSOR_0 1
+#endif
+#define TEMP_SENSOR_1 0
+#define TEMP_SENSOR_2 0
+#define TEMP_SENSOR_3 0
+#define TEMP_SENSOR_4 0
+#define TEMP_SENSOR_5 0
+#define TEMP_SENSOR_6 0
+#define TEMP_SENSOR_7 0
+#wenn AKTIVIERT(KNUTWURST_4MAXP2)
+#define TEMP_SENSOR_BED 5
+#anders
+#define TEMP_SENSOR_BED 1
+#endif
+#define TEMP_SENSOR_PROBE 0
+#define TEMP_SENSOR_CHAMBER 0
+#define TEMP_SENSOR_COOLER 0
+#define TEMP_SENSOR_BOARD 0
+#define TEMP_SENSOR_REDUNDANT 0
+
+// Dummy-Thermistor mit konstanter Temperaturanzeige, zur Verwendung mit 998 und 999
+#define DUMMY_THERMISTOR_998_VALUE 25
+#define DUMMY_THERMISTOR_999_VALUE 100
+
+// Widerstandswerte bei Verwendung von MAX31865-Sensoren (-5) auf TEMP_SENSOR_0 / 1
+#wenn TEMP_SENSOR_IS_MAX_TC(0)
+#define MAX31865_SENSOR_OHMS_0 100 // (Ω) Normalerweise 100 oder 1000 (PT100 oder PT1000)
+#define MAX31865_CALIBRATION_OHMS_0 430 // (Ω) Normalerweise 430 für Adafruit PT100; 4300 für Adafruit PT1000
+#endif
+#wenn TEMP_SENSOR_IS_MAX_TC(1)
+#define MAX31865_SENSOR_OHMS_1 100
+#define MAX31865_CALIBRATION_OHMS_1 430
+#endif
+#wenn TEMP_SENSOR_IS_MAX_TC(2)
+#define MAX31865_SENSOR_OHMS_2 100
+#define MAX31865_CALIBRATION_OHMS_2 430
+#endif
+
+#wenn HAS_E_TEMP_SENSOR
+#define TEMP_RESIDENCY_TIME 10 // (Sekunden) Wartezeit bis sich das Hotend in M109 „beruhigt“
+#define TEMP_WINDOW 1 // (°C) Temperaturnähe für den „Temperatur erreicht“-Timer
+#define TEMP_HYSTERESIS 3 // (°C) Temperaturnähe, die als „nahe genug“ am Ziel angesehen wird
+#endif
+
+#wenn TEMP_SENSOR_BED
+#define TEMP_BED_RESIDENCY_TIME 10 // (Sekunden) Wartezeit bis sich das Bett in M190 „beruhigt“
+#define TEMP_BED_WINDOW 1 // (°C) Temperaturnähe für den „Temperatur erreicht“-Timer
+#define TEMP_BED_HYSTERESIS 3 // (°C) Temperaturnähe, die als „nahe genug“ am Ziel betrachtet wird
+#endif
+
+#wenn TEMP_SENSOR_CHAMBER
+#define TEMP_CHAMBER_RESIDENCY_TIME 10 // (Sekunden) Wartezeit bis sich die Kammer in M191 „beruhigt“
+#define TEMP_CHAMBER_WINDOW 1 // (°C) Temperaturnähe für den „Temperatur erreicht“-Timer
+#define TEMP_CHAMBER_HYSTERESIS 3 // (°C) Temperaturnähe, die als „nahe genug“ am Ziel betrachtet wird
+#endif
+
+/**
+* Redundanter Temperatursensor (TEMP_SENSOR_REDUNDANT)
+*
+* Verwenden Sie einen Temperatursensor als redundanten Sensor für eine weitere Messung. Wählen Sie einen unbenutzten Temperatursensor und einen weiteren
+* Sensor, für den Sie redundant sein möchten. Wenn sich die beiden Thermistoren um TEMP_SENSOR_REDUNDANT_MAX_DIFF (°C) unterscheiden,
+* der Druck wird abgebrochen. Die normalen Funktionen des ausgewählten Sensors sind deaktiviert.
+* Der Bettsensor (-1) deaktiviert die Bettheizung/-überwachung.
+*
+* Zur Auswahl von Quelle/Ziel verwenden Sie: COOLER, PROBE, BOARD, CHAMBER, BED, E0, E1, E2, E3, E4, E5, E6, E7
+*/
+#wenn TEMP_SENSOR_REDUNDANT
+#define TEMP_SENSOR_REDUNDANT_SOURCE E1 // Der Sensor, der den redundanten Messwert liefert.
+#define TEMP_SENSOR_REDUNDANT_TARGET E0 // Der Sensor, für den wir einen redundanten Messwert bereitstellen.
+#define TEMP_SENSOR_REDUNDANT_MAX_DIFF 10 // (°C) Temperaturunterschied, der einen Druckabbruch auslöst.
+#endif
+
+// Unterhalb dieser Temperatur wird die Heizung abgeschaltet
+// weil es wahrscheinlich auf ein defektes Thermistorkabel hinweist.
+#define HEATER_0_MINTEMP 1
+#define HEATER_1_MINTEMP 1
+#define HEATER_2_MINTEMP 1
+#define HEATER_3_MINTEMP 1
+#define HEATER_4_MINTEMP 1
+#define HEATER_5_MINTEMP 1
+#define HEATER_6_MINTEMP 1
+#define HEATER_7_MINTEMP 1
+#define BED_MINTEMP 1
+#define CHAMBER_MINTEMP 1
+
+// Über dieser Temperatur wird die Heizung abgeschaltet.
+// Dadurch können Komponenten vor Überhitzung geschützt werden, jedoch NICHT vor Kurzschlüssen und Ausfällen.
+// (Verwenden Sie MINTEMP zum Schutz vor Kurzschlüssen/Ausfällen des Thermistors.)
+#wenn AKTIVIERT(KNUTWURST_4MAXP2)
+#define HEATER_0_MAXTEMP 300
+#anders
+#define HEATER_0_MAXTEMP 285
+#endif
+#define HEATER_1_MAXTEMP 275
+#define HEATER_2_MAXTEMP 275
+#define HEATER_3_MAXTEMP 275
+#define HEATER_4_MAXTEMP 275
+#define HEATER_5_MAXTEMP 275
+#define HEATER_6_MAXTEMP 275
+#define HEATER_7_MAXTEMP 275
+#define BED_MAXTEMP 150
+#define CHAMBER_MAXTEMP 60
+
+/**
+* Thermisches Überschwingen
+* Beim Aufheizen (und Drucken) kann die Temperatur oft um viele Grad über das Ziel hinausschießen
+* (insbesondere vor der PID-Abstimmung). Wenn die Zieltemperatur zu nahe an MAXTEMP eingestellt wird,
+* eine MAXTEMP-Abschaltung! Verwenden Sie diese Werte, um zu verhindern, dass Temperaturen zu nahe an MAXTEMP eingestellt werden.
+*/
+#define HOTEND_OVERSHOOT 15 // (°C) Temperaturen über MAXTEMP - OVERSHOOT verbieten
+#define BED_OVERSHOOT 10 // (°C) Temperaturen über MAXTEMP - OVERSHOOT verbieten
+#define COOLER_OVERSHOOT 2 // (°C) Verbiete Temperaturen näher als OVERSHOOT
+
+//=======================================================================
+//============================ PID-Einstellungen =================================
+//=======================================================================
+
+// @Abschnitt Hotend-Temperatur
+
+/**
+* Temperaturkontrolle
+*
+* (KEINE): Knall-Knall-Heizung
+* PIDTEMP: PID-Temperaturregelung (~4,1 K)
+* MPCTEMP: Temperaturregelung per prädiktivem Modell. (~1,8 K ohne Auto-Tune)
+*/
+#define PIDTEMP // Siehe den PID-Tuning-Leitfaden unter https://reprap.org/wiki/PID_Tuning
+//#define MPCTEMP // Siehe https://marlinfw.org/docs/features/model_predictive_control.html
+
+#define PID_MAX 255 // Begrenzen Sie den Hotend-Strom, während PID aktiv ist (siehe PID_FUNCTIONAL_RANGE unten); 255 = voller Strom
+#define PID_K1 0.95 // Glättungsfaktor innerhalb jeder PID-Schleife
+
+#wenn AKTIVIERT(PIDTEMP)
+//#define PID_DEBUG // PID-Debugdaten an den seriellen Port drucken. Mit „M303 D“ die Aktivierung umschalten.
+//#define PID_PARAMS_PER_HOTEND // Separate PID-Parameter für jeden Extruder verwenden (nützlich bei nicht übereinstimmenden Extrudern)
+// Setzen/Erhalten mit G-Code: M301 E[Extrudernummer, 0-2]
+
+#wenn ANY(KNUTWURST_MEGA, KNUTWURST_MEGA_S, KNUTWURST_MEGA_P)
+#define DEFAULT_Kp 12.28
+#define DEFAULT_Ki 0,75
+#define DEFAULT_Kd 50.06
+#endif
+
+#wenn AKTIVIERT(KNUTWURST_MEGA_X)
+#define DEFAULT_Kp 15.94
+#define DEFAULT_Ki 1.17
+#define DEFAULT_Kd 54.19
+#endif
+
+#wenn AKTIVIERT(KNUTWURST_CHIRON)
+#define DEFAULT_Kp 20.00
+#define DEFAULT_Ki 0,50
+#define DEFAULT_Kd 106,55
+#endif
+
+#wenn AKTIVIERT(KNUTWURST_4MAXP2)
+#define DEFAULT_Kp 17.13
+#define DEFAULT_Ki 0,93
+#define DEFAULT_Kd 78,58
+#endif
+#anders
+#define BANG_MAX 255 // Begrenzen Sie den Hotend-Strom im Bang-Bang-Modus; 255 = voller Strom
+#endif
+
+/**
+* Modellprädiktive Regelung für Hotend
+*
+* Verwenden Sie ein physikalisches Modell des Hotends zur Temperaturregelung. Bei richtiger Konfiguration ergibt dies
+* bessere Reaktionsfähigkeit und Stabilität als PID und macht PID_EXTRUSION_SCALING überflüssig
+* und PID_FAN_SCALING. Verwenden Sie M306 T, um das Modell automatisch zu optimieren.
+* @Abschnitt mpctemp
+*/
+#wenn AKTIVIERT(MPCTEMP)
+//#define MPC_EDIT_MENU // MPC-Bearbeitung zum Menü „Erweiterte Einstellungen“ hinzufügen. (~1,3 KB Flash)
+//#define MPC_AUTOTUNE_MENU // MPC-Autotuning zum Menü „Erweiterte Einstellungen“ hinzufügen. (~350 Byte Flash)
+
+#define MPC_MAX 255 // (0..255) Strom zur Düse, während MPC aktiv ist.
+#define MPC_HEATER_POWER { 40.0f } // (W) Leistung der Heizpatrone.
+
+#define MPC_INCLUDE_FAN // Lüftergeschwindigkeit modellieren?
+
+// Gemessene physikalische Konstanten aus M306
+#define MPC_BLOCK_HEAT_CAPACITY { 16.7f } // (J/K) Wärmekapazitäten des Heizblocks.
+#define MPC_SENSOR_RESPONSIVENESS { 0.22f } // (K/s pro ∆K) Änderungsrate der Sensortemperatur vom Heizblock.
+#define MPC_AMBIENT_XFER_COEFF { 0.068f } // (W/K) Wärmeübertragungskoeffizienten vom Heizblock zur Raumluft bei ausgeschaltetem Ventilator.
+#wenn AKTIVIERT(MPC_INCLUDE_FAN)
+#define MPC_AMBIENT_XFER_COEFF_FAN255 { 0,097f } // (W/K) Wärmeübertragungskoeffizienten vom Heizblock zur Raumluft bei voll aufgedrehtem Ventilator.
+#endif
+
+// Für einen Lüfter und mehrere Hotends muss MPC wissen, wie der Lüfterkühleffekt angewendet wird.
+#wenn AKTIVIERT(MPC_INCLUDE_FAN)
+//#define MPC_FAN_0_ALL_HOTENDS
+//#definiere MPC_FAN_0_ACTIVE_HOTEND
+#endif
+
+// Wärmekapazität des Glühfadens (Joule/Kelvin/mm)
+// Wird zur Laufzeit mit M306 H<Wert> gesetzt
+#define FILAMENT_HEAT_CAPACITY_PERMM { 5.6e-3f } // 0,0056 J/K/mm für 1,75 mm PLA (0,0149 J/K/mm für 2,85 mm PLA).
+// 0,0036 J/K/mm für 1,75 mm PETG (0,0094 J/K/mm für 2,85 mm PETG).
+// 0,00515 J/K/mm für 1,75 mm ABS (0,0137 J/K/mm für 2,85 mm ABS).
+// 0,00522 J/K/mm für 1,75 mm Nylon (0,0138 J/K/mm für 2,85 mm Nylon).
+
+// Erweiterte Optionen
+#define MPC_SMOOTHING_FACTOR 0,5f // (0,0...1,0) Störende Temperatursensoren benötigen möglicherweise einen niedrigeren Wert zur Stabilisierung.
+#define MPC_MIN_AMBIENT_CHANGE 1.0f // (K/s) Modellierte Änderungsrate der Umgebungstemperatur bei Korrektur von Modellungenauigkeiten.
+#define MPC_STEADYSTATE 0.5f // (K/s) Temperaturänderungsrate für die zu erzwingende Steady-State-Logik.
+
+#define MPC_TUNING_POS { X_CENTER, Y_CENTER, 1.0f } // (mm) M306 Autotuning-Position, idealerweise Bettmitte auf Höhe der ersten Schicht.
+#define MPC_TUNING_END_Z 10.0f // (mm) M306 Automatische Abstimmung der endgültigen Z-Position.
+#endif
+
+//=======================================================================
+//====================== PID > Betttemperaturregelung =======================
+//=======================================================================
+
+// @Abschnitt Betttemperatur
+
+/**
+* Maximale Bettleistung
+* Gilt für alle Formen der Bettsteuerung (PID, Bang-Bang und Bang-Bang mit Hysterese).
+* Bei einem Wert unter 255 wird eine Art PWM für das Bett aktiviert, die als Teiler fungiert.
+* Verwenden Sie es also nicht, es sei denn, Sie sind mit PWM auf Ihrem Bett einverstanden. (Siehe den Kommentar zum Aktivieren von PIDTEMPBED)
+*/
+#define MAX_BED_POWER 255 // begrenzt den Arbeitszyklus auf das Bett; 255 = voller Strom
+
+/**
+* PID-Bettheizung
+*
+* Die PID-Frequenz ist dieselbe wie die Extruder-PWM.
+* Wenn PID_dT der Standardwert ist und für die Hardware/Konfiguration korrekt ist, bedeutet dies 7,689 Hz.
+* was gut ist, um eine Rechteckwelle in eine ohmsche Last zu treiben und nicht signifikant
+* Einfluss der FET-Erhitzung. Dies funktioniert auch gut mit einem Fotek SSR-10DA Halbleiterrelais in einem 250W
+* Heizung. Wenn Ihre Konfiguration deutlich anders ist als diese und Sie nicht verstehen
+* die damit verbundenen Probleme. Verwenden Sie Bed PID nicht, bis jemand anderes überprüft hat, ob Ihre Hardware funktioniert.
+*
+* Wenn diese Option deaktiviert ist, wird Bang-Bang verwendet. BED_LIMIT_SWITCHING aktiviert die Hysterese.
+*/
+#PIDTEMPBED definieren
+
+#wenn AKTIVIERT(PIDTEMPBED)
+//#definiere MIN_BED_POWER 0
+//#define PID_BED_DEBUG // Bed PID-Debugdaten auf den seriellen Port drucken.
+
+#wenn ANY(KNUTWURST_MEGA, KNUTWURST_MEGA_S, KNUTWURST_MEGA_P)
+#define DEFAULT_bedKp 251,78
+#define DEFAULT_bedKi 49,57
+#define DEFAULT_bedKd 319,73
+#elif AKTIVIERT(KNUTWURST_MEGA_X)
+#define DEFAULT_bedKp 251,78
+#define DEFAULT_bedKi 49,57
+#define DEFAULT_bedKd 319,73
+#elif AKTIVIERT(KNUTWURST_CHIRON)
+#define DEFAULT_bedKp 97,10
+#define DEFAULT_bedKi 1.41
+#define DEFAULT_bedKd 1675.16
+#elif AKTIVIERT(KNUTWURST_4MAXP2)
+#define DEFAULT_bedKp 251,78
+#define DEFAULT_bedKi 49,57
+#define DEFAULT_bedKd 319,73
+#endif
+
+// 120 V 250 W Silikonheizung in 4 mm Borosilikat (MendelMax 1,5+)
+// vom FOPDT-Modell – kp=.39 Tp=405 Tdead=66, Tc auf 79,2 eingestellt, aggressiver Faktor von .15 (vs. .1, 1, 10)
+//#define DEFAULT_bedKp 10.00
+//#define DEFAULT_bedKi .023
+//#define DEFAULT_bedKd 305.4
+
+// FINDEN SIE IHR EIGENES: „M303 E-1 C8 S90“, um Autotune auf dem Bett bei 90 °C für 8 Zyklen auszuführen.
+#anders
+//#define BED_LIMIT_SWITCHING // Halten Sie die Betttemperatur innerhalb der BED_HYSTERESIS des Ziels
+#endif
+
+//=======================================================================
+//==================== PID > Kammertemperaturregelung =====================
+//=======================================================================
+
+/**
+* PID-Kammerheizung
+*
+* Wenn diese Option aktiviert ist, legen Sie unten die PID-Konstanten fest.
+* Wenn diese Option deaktiviert ist, wird Bang-Bang verwendet und CHAMBER_LIMIT_SWITCHING aktiviert
+* Hysterese.
+*
+* Die PID-Frequenz ist dieselbe wie die Extruder-PWM.
+* Wenn PID_dT der Standardwert ist und für die Hardware/Konfiguration korrekt ist, bedeutet dies 7,689 Hz.
+* was gut ist, um eine Rechteckwelle in eine ohmsche Last zu treiben und nicht signifikant
+* Einfluss der FET-Erhitzung. Dies funktioniert auch gut mit einem Fotek SSR-10DA Halbleiterrelais in einem 200W
+* Heizung. Wenn Ihre Konfiguration deutlich anders ist als diese und Sie nicht verstehen
+* Verwenden Sie die Kammer-PID aufgrund der damit verbundenen Probleme nicht, bis jemand anderes überprüft hat, ob Ihre Hardware funktioniert.
+* @Abschnittskammertemperatur
+*/
+//#PIDTEMPCHAMBER definieren
+//#CHAMBER_LIMIT_SWITCHING definieren
+
+/**
+* Maximale Kammerleistung
+* Gilt für alle Formen der Kammerregelung (PID, Bang-Bang und Bang-Bang mit Hysterese).
+* Bei Einstellung auf einen beliebigen Wert unter 255 wird eine Form von PWM für die Kammerheizung aktiviert, die wie ein Teiler wirkt.
+* Verwenden Sie es also nicht, es sei denn, Sie sind mit PWM auf Ihrer Heizung einverstanden. (Siehe den Kommentar zum Aktivieren von PIDTEMPCHAMBER.)
+*/
+#define MAX_CHAMBER_POWER 255 // begrenzt den Arbeitszyklus der Kammerheizung; 255 = voller Strom
+
+#wenn AKTIVIERT(PIDTEMPCHAMBER)
+#define MIN_CHAMBER_POWER 0
+//#define PID_CHAMBER_DEBUG // Drucke die Chamber PID-Debugdaten auf den seriellen Port.
+
+// Lasko „MyHeat Personal Heater“ (200 W) modifiziert mit einem Fotek SSR-10DA, um nur das Heizelement zu steuern
+// und in das kleine Gehäusezelt des Creality-Druckers gelegt.
+//
+#define DEFAULT_chamberKp 37.04
+#define DEFAULT_chamberKi 1.40
+#define DEFAULT_chamberKd 655,17
+// M309 P37.04 I1.04 D655.17
+
+// FINDEN SIE IHR EIGENES: „M303 E-2 C8 S50“, um die automatische Abstimmung der Kammer bei 50 °C 8 Zyklen lang auszuführen.
+#endif // PIDTEMPCHAMBER
+
+// @Abschnitt PID-Temperatur
+
+#wenn BELIEBIG(PIDTEMP, PIDTEMPBED, PIDTEMPCHAMBER)
+//#define PID_OPENLOOP // Setzt PID in offenen Regelkreis. M104/M140 setzt die Ausgangsleistung von 0 auf PID_MAX
+//#define SLOW_PWM_HEATERS // PWM mit sehr niedriger Frequenz (ungefähr 0,125 Hz = 8 s) und einer minimalen Zustandszeit von ungefähr 1 s, nützlich für Heizungen, die von einem Relais gesteuert werden
+#define PID_FUNCTIONAL_RANGE 10 // Wenn die Temperaturdifferenz zwischen der Zieltemperatur und der tatsächlichen Temperatur
+// größer als PID_FUNCTIONAL_RANGE ist, wird der PID abgeschaltet und die Heizung auf Min./Max. eingestellt.
+
+//#define PID_EDIT_MENU // PID-Bearbeitung zum Menü „Erweiterte Einstellungen“ hinzufügen. (~700 Byte Flash)
+//#define PID_AUTOTUNE_MENU // PID-Autotuning zum Menü „Erweiterte Einstellungen“ hinzufügen. (~250 Byte Flash)
+#endif
+
+// @Abschnitt Sicherheit
+
+/**
+* Verhindern Sie die Extrusion, wenn die Temperatur unter EXTRUDE_MINTEMP liegt.
+* Fügen Sie M302 hinzu, um die minimale Extrusionstemperatur einzustellen und/oder
+* Kaltfließpressverhinderung ein und aus.
+*
+* *** ES WIRD DRINGEND EMPFOHLEN, DIESE OPTION AKTIVIERT ZU LASSEN! ***
+*/
+#define PREVENT_COLD_EXTRUSION
+#define EXTRUDE_MINTEMP 170
+
+/**
+* Verhindern Sie eine einzelne Extrusion, die länger als EXTRUDE_MAXLENGTH ist.
+* Hinweis: Machen Sie diesen Wert bei Bowden-Extrudern groß genug, um das Be- und Entladen zu ermöglichen.
+*/
+#define PREVENT_LENGTHY_EXTRUDE
+#define EXTRUDE_MAXLENGTH 600
+
+//=======================================================================
+//======================== Schutz vor thermischem Durchgehen ========================
+//=======================================================================
+
+/**
+* Der Wärmeschutz bietet zusätzlichen Schutz Ihres Druckers vor Schäden
+* und Feuer. Marlin enthält immer sichere Min- und Max-Temperaturbereiche, die
+* Schutz vor einem defekten oder getrennten Thermistorkabel.
+*
+* Das Problem: Wenn ein Thermistor herausfällt, meldet er den viel niedrigeren
+* Temperatur der Luft im Raum, und die Firmware wird halten
+* die Heizung an.
+*
+* Wenn Sie die Fehlermeldung "Thermal Runaway" oder "Heating failed" erhalten,
+* Details können in Configuration_adv.h angepasst werden
+*/
+
+#define THERMAL_PROTECTION_HOTENDS // Wärmeschutz für alle Extruder aktivieren
+#define THERMAL_PROTECTION_BED // Wärmeschutz für das beheizte Bett aktivieren
+// #define THERMAL_PROTECTION_CHAMBER // Aktiviere den Wärmeschutz für die beheizte Kammer
+// #define THERMAL_PROTECTION_COOLER // Aktiviere den Wärmeschutz für die Laserkühlung
+
+//=======================================================================
+//============================= Mechanische Einstellungen ==========================
+//=======================================================================
+
+// @Abschnitt Kinematik
+
+// Aktivieren Sie eine der folgenden Optionen für CoreXY-, CoreXZ- oder CoreYZ-Kinematik.
+// entweder in der üblichen Reihenfolge oder umgekehrt
+//#COREXY definieren
+//#COREXZ definieren
+//#COREYZ definieren
+//#definiere COREYX
+//#COREZX definieren
+//#COREZY definieren
+
+//
+// MarkForged Kinematik
+// Siehe https://reprap.org/forum/read.php?152,504042
+//
+//#markforged_xy definieren
+//#markforge_yx definieren
+
+// Aktivieren Sie einen Riemendrucker mit endloser „Z“-Bewegung
+//#BELTDRUCKER definieren
+
+// Aktivieren für Polargraph-Kinematik
+//#POLARGRAPH definieren
+#wenn AKTIVIERT(POLARGRAPH)
+#define POLARGRAPH_MAX_BELT_LEN 1035.0 // (mm) Riemenlänge bei voller Ausdehnung. Überschreiben mit M665 H.
+#define DEFAULT_SEGMENTS_PER_SECOND 5 // Segmentierung basierend auf Dauer verschieben
+#endif
+
+// @Abschnitt Delta
+
+// Für DELTA-Kinematik aktivieren und unten konfigurieren
+//#DELTA definieren
+#wenn AKTIVIERT(DELTA)
+
+// Aus vielen Geraden Deltakurven erstellen (lineare Interpolation).
+// Dies ist ein Kompromiss zwischen sichtbaren Ecken (nicht genügend Segmente)
+// und Prozessorüberlastung (zu viele teure sqrt-Aufrufe).
+#define DEFAULT_SEGMENTS_PER_SECOND 200
+
+// Nach dem Homing auf eine Höhe abwärts fahren, bei der die XY-Bewegung nicht eingeschränkt ist
+//#DELTA_HOME_TO_SAFE_ZONE definieren
+
+// Delta-Kalibrierungsmenü
+// Dreipunktkalibrierung zum MarlinUI-Menü hinzufügen.
+// Siehe http://minow.blogspot.com/index.html#4918805519571907051
+//#DELTA_CALIBRATION_MENU definieren
+
+// G33 Delta-Autokalibrierung. Aktivieren Sie EEPROM_SETTINGS, um Ergebnisse zu speichern.
+//#DELTA_AUTO_CALIBRATION definieren
+
+#wenn AKTIVIERT(DELTA_AUTO_CALIBRATION)
+// Standardanzahl der Prüfpunkte: n*n (1 -> 7)
+#delta_kalibrierung_standardpunkte definieren 4
+#endif
+
+#wenn EITHER(DELTA_AUTO_CALIBRATION, DELTA_CALIBRATION_MENU)
+// Schrittweite für Papiertest-Sondierung
+#define PROBE_MANUALLY_STEP 0,05 // (mm)
+#endif
+
+//Druckoberflächendurchmesser/2 minus nicht erreichbarer Raum (Kollisionen mit vertikalen Türmen vermeiden).
+#define DELTA_PRINTABLE_RADIUS 140,0 // (mm)
+
+// Maximal erreichbarer Bereich
+#define DELTA_MAX_RADIUS 140,0 // (mm)
+
+// Mittenabstand der Löcher in den diagonalen Schubstangen.
+#define DELTA_DIAGONAL_ROD 250.0 // (mm)
+
+// Abstand zwischen Bett und Düse Z-Ausgangsposition
+#define DELTA_HEIGHT 250.00 // (mm) Holen Sie sich diesen Wert aus der automatischen Kalibrierung von G33
+
+#define DELTA_ENDSTOP_ADJ { 0.0, 0.0, 0.0 } // (mm) Holen Sie sich diese Werte aus der automatischen Kalibrierung von G33
+
+// Horizontale Distanz, die durch diagonale Schubstangen überbrückt wird, wenn der Effektor zentriert ist.
+#define DELTA_RADIUS 124.0 // (mm) Holen Sie sich diesen Wert aus der automatischen Kalibrierung von G33
+
+// Trimmanpassungen für einzelne Türme
+// Turmwinkelkorrekturen für X- und Y-Turm / XYZ drehen, sodass Z-Turmwinkel = 0
+// gemessen in Grad gegen den Uhrzeigersinn, von oben auf den Drucker gesehen
+#define DELTA_TOWER_ANGLE_TRIM { 0.0, 0.0, 0.0 } // (mm) Holen Sie sich diese Werte aus der automatischen Kalibrierung von G33
+
+// Delta-Radius und diagonale Stabanpassungen
+//#define DELTA_RADIUS_TRIM_TOWER { 0.0, 0.0, 0.0 } // (mm)
+//#define DELTA_DIAGONAL_ROD_TRIM_TOWER { 0.0, 0.0, 0.0 } // (mm)
+#endif
+
+// @Abschnitt entfernen
+
+/**
+* MORGAN_SCARA wurde 2012–2013 von QHARLEY in Südafrika entwickelt.
+* Im Juni 2014 von JCERNY implementiert und leicht überarbeitet.
+*
+* Mostly Printed SCARA ist ein Open-Source-Design von Tyler Williams. Siehe:
+* https://www.thingiverse.com/thing:2487048
+* https://www.thingiverse.com/thing:1241491
+*/
+//#definiere MORGAN_SCARA
+//#MP_SCARA definieren
+#if EITHER(MORGAN_SCARA, MP_SCARA)
+// Wenn die Bewegung abgehackt ist, versuchen Sie, diesen Wert zu verringern
+#define DEFAULT_SEGMENTS_PER_SECOND 200
+
+// Länge der inneren und äußeren Tragarme. Armlängen genau messen.
+#define SCARA_LINKAGE_1 150 // (mm)
+#define SCARA_LINKAGE_2 150 // (mm)
+
+// SCARA-Turm-Offset (Position des Turms relativ zur Nullposition des Betts)
+// Dies muss einigermaßen genau sein, da es die Position des Druckbetts im SCARA-Raum definiert.
+#define SCARA_OFFSET_X 100 // (mm)
+#define SCARA_OFFSET_Y -56 // (mm)
+
+#wenn AKTIVIERT(MORGAN_SCARA)
+
+//#definieren Sie DEBUG_SCARA_KINEMATICS
+#define SCARA_FEEDRATE_SCALING // Konvertieren Sie die XY-Vorschubgeschwindigkeit im Handumdrehen von mm/s in Grad/s
+
+// Radius um den Mittelpunkt, wo der Arm nicht hinkommt
+#define MITTLERE_TOTE_ZONE_R 0 // (mm)
+
+#define THETA_HOMING_OFFSET 0 // Berechnet aus dem Kalibrierungshandbuch und M360 / M114. Siehe https://www.morgan3dp.com/morgan-calibration-guide/
+#define PSI_HOMING_OFFSET 0 // Berechnet aus dem Kalibrierungshandbuch und M364 / M114. Siehe https://www.morgan3dp.com/morgan-calibration-guide/
+
+#elif AKTIVIERT(MP_SCARA)
+
+#define SCARA_OFFSET_THETA1 12 // Grad
+#define SCARA_OFFSET_THETA2 131 // Grad
+
+#endif
+
+#endif
+
+// @Abschnitt tpara
+
+// Für TPARA-Kinematik aktivieren und unten konfigurieren
+//#definiere AXEL_TPARA
+#wenn AKTIVIERT(AXEL_TPARA)
+#define DEBUG_TPARA_KINEMATICS
+#define DEFAULT_SEGMENTS_PER_SECOND 200
+
+// Länge der inneren und äußeren Tragarme. Armlängen genau messen.
+#define TPARA_LINKAGE_1 120 // (mm)
+#define TPARA_LINKAGE_2 120 // (mm)
+
+// TPARA-Turmversatz (Position des Turms relativ zur Bett-Nullposition)
+// Dies muss einigermaßen genau sein, da es die Druckbettposition im TPARA-Bereich definiert.
+#define TPARA_OFFSET_X 0 // (mm)
+#define TPARA_OFFSET_Y 0 // (mm)
+#define TPARA_OFFSET_Z 0 // (mm)
+
+#define SCARA_FEEDRATE_SCALING // Konvertieren Sie die XY-Vorschubgeschwindigkeit im Handumdrehen von mm/s in Grad/s
+
+// Radius um den Mittelpunkt, wo der Arm nicht hinkommt
+#define MITTLERE_TOTE_ZONE_R 0 // (mm)
+#endif
+
+// @Abschnittsmaschine
+
+// Gelenkroboter (Arm). Gelenke werden ohne Kinematik direkt Achsen zugeordnet.
+//#definieren Sie ARTIKULIERTER_ROBOTERARM
+
+// Für einen Heißdrahtschneider mit parallelen horizontalen Achsen (X, I), bei dem die Höhen der beiden Draht
+// Die Enden werden durch parallele Achsen (Y, J) gesteuert. Gelenke werden direkt den Achsen zugeordnet (keine Kinematik).
+//#define FOAMCUTTER_XYUV
+
+//=======================================================================
+//============================= Endstopp-Einstellungen ===========================
+//=======================================================================
+
+// @Abschnitt Endstopps
+
+// Geben Sie hier alle Endanschlag-Anschlüsse an, die mit einem Endanschlag oder einer Sonde verbunden sind.
+// Fast alle Drucker verwenden einen pro Achse. Sonden verwenden einen oder mehrere der
+// zusätzliche Anschlüsse. Lassen Sie alle für andere Zwecke als Endstopps und Sonden verwendeten Anschlüsse undefiniert.
+#define USE_XMIN_PLUG
+#define USE_YMIN_PLUG
+#define USE_ZMIN_PLUG
+//#USE_IMIN_PLUG definieren
+//#USE_JMIN_PLUG definieren
+//#USE_KMIN_PLUG definieren
+//#USE_UMIN_PLUG definieren
+//#USE_VMIN_PLUG definieren
+//#USE_WMIN_PLUG definieren
+#wenn DEAKTIVIERT(KNUTWURST_ONE_Z_ENDSTOP)
+#define USE_XMAX_PLUG
+#endif
+//#define USE_YMAX_PLUG
+#wenn AKTIVIERT(KNUTWURST_CHIRON)
+// #define USE_ZMAX_PLUG
+#endif
+//#define USE_IMAX_PLUG
+//#USE_JMAX_PLUG definieren
+//#USE_KMAX_PLUG definieren
+//#USE_UMAX_PLUG definieren
+//#USE_VMAX_PLUG definieren
+//#USE_WMAX_PLUG definieren
+
+// Pullup für alle Endanschläge aktivieren um einen schwebenden Zustand zu verhindern
+#Endstopp-Zugversuche definieren
+#wenn DEAKTIVIERT(ENDSTOPPULLUPS)
+//Deaktiviere ENDSTOPPULLUPS um Pullups individuell einzustellen
+//#define ENDSTOPPULLUP_XMIN
+//#define ENDSTOPPULLUP_YMIN
+//#define ENDSTOPPULLUP_ZMIN
+//#define ENDSTOPPULLUP_IMIN
+//#define ENDSTOPPULLUP_JMIN
+//#define ENDSTOPPULLUP_KMIN
+//#endstopppULLUP_UMIN definieren
+//#define ENDSTOPPULLUP_VMIN
+//#define ENDSTOPPULLUP_WMIN
+//#endstopppULLUP_XMAX definieren
+//#define ENDSTOPPULLUP_YMAX
+//#define ENDSTOPPULLUP_ZMAX
+//#endstopppULLUP_IMAX definieren
+//#endstopPULLUP_JMAX definieren
+//#endstopppULLUP_KMAX definieren
+//#endstopppULLUP_UMAX definieren
+//#endstopppULLUP_VMAX definieren
+//#endstopppULLUP_WMAX definieren
+//#define ENDSTOPPULLUP_ZMIN_PROBE
+#endif
+
+// Pulldown für alle Endanschläge aktivieren um einen schwebenden Zustand zu verhindern
+//#ENDSTOPPULLDOWNS definieren
+#wenn DEAKTIVIERT(ENDSTOPPULLDOWNS)
+// Deaktivieren Sie ENDSTOPPULLDOWNS, um Pulldowns individuell einzustellen
+//#define ENDSTOPPULLDOWN_XMIN
+//#define ENDSTOPPULLDOWN_YMIN
+//#define ENDSTOPPULLDOWN_ZMIN
+//#define ENDSTOPPULLDOWN_IMIN
+//#define ENDSTOPPULLDOWN_JMIN
+//#define ENDSTOPPULLDOWN_KMIN
+//#endstopPULLDOWN_UMIN definieren
+//#define ENDSTOPPULLDOWN_VMIN
+//#endstoppullidown_wmin definieren
+//#endstoppullidown_xmax definieren
+//#definiere ENDSTOPPULLDOWN_YMAX
+//#endstopPULLDOWN_ZMAX definieren
+//#endstoppullidown_IMAX definieren
+//#define ENDSTOPPULLDOWN_JMAX
+//#endstoppullidown_kmax definieren
+//#endstopPULLDOWN_UMAX definieren
+//#endstopPULLDOWN_VMAX definieren
+//#endstoppullidown_wmax definieren
+//#define ENDSTOPPULLDOWN_ZMIN_PROBE
+#endif
+
+// Mechanischer Endanschlag mit COM zu Masse und NC zu Signal verwendet hier „false“ (häufigste Konfiguration).
+#wenn ANY(KNUTWURST_MEGA, KNUTWURST_MEGA_S, KNUTWURST_MEGA_P, KNUTWURST_4MAXP2)
+#define X_MIN_ENDSTOP_INVERTING true // Auf „true“ setzen, um die Logik des Endstopps umzukehren.
+#define Y_MIN_ENDSTOP_INVERTING true // Auf „true“ setzen, um die Logik des Endstopps umzukehren.
+#wenn BEIDE(KNUTWURST_BLTOUCH, KNUTWURST_4MAXP2)
+#define Z_MIN_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#anders
+#define Z_MIN_ENDSTOP_INVERTING true // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#endif
+#define I_MIN_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define J_MIN_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define K_MIN_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endstopps umzukehren.
+#define U_MIN_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define V_MIN_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define W_MIN_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endstopps umzukehren.
+#define X_MAX_ENDSTOP_INVERTING true // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define Y_MAX_ENDSTOP_INVERTING true // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define Z_MAX_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define I_MAX_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define J_MAX_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define K_MAX_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define U_MAX_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define V_MAX_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define W_MAX_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define Z_MIN_PROBE_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik der Sonde umzukehren.
+#elif AKTIVIERT(KNUTWURST_MEGA_X)
+#define X_MIN_ENDSTOP_INVERTING true // Auf „true“ setzen, um die Logik des Endstopps umzukehren.
+#define Y_MIN_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endstopps umzukehren.
+#define Z_MIN_ENDSTOP_INVERTING true // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define I_MIN_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define J_MIN_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define K_MIN_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endstopps umzukehren.
+#define U_MIN_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define V_MIN_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define W_MIN_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endstopps umzukehren.
+#define X_MAX_ENDSTOP_INVERTING true // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define Y_MAX_ENDSTOP_INVERTING true // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define Z_MAX_ENDSTOP_INVERTING true // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define I_MAX_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define J_MAX_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define K_MAX_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define U_MAX_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define V_MAX_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define W_MAX_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define Z_MIN_PROBE_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik der Sonde umzukehren.
+#elif AKTIVIERT(KNUTWURST_CHIRON)
+#define X_MIN_ENDSTOP_INVERTING true // Auf „true“ setzen, um die Logik des Endstopps umzukehren.
+#define Y_MIN_ENDSTOP_INVERTING true // Auf „true“ setzen, um die Logik des Endstopps umzukehren.
+#define Z_MIN_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define I_MIN_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define J_MIN_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define K_MIN_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endstopps umzukehren.
+#define U_MIN_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define V_MIN_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define W_MIN_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endstopps umzukehren.
+#define X_MAX_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endstopps umzukehren.
+#define Y_MAX_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define Z_MAX_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define I_MAX_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define J_MAX_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define K_MAX_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define U_MAX_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define V_MAX_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define W_MAX_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik des Endanschlags umzukehren.
+#define Z_MIN_PROBE_ENDSTOP_INVERTING false // Auf „true“ setzen, um die Logik der Sonde umzukehren.
+#endif // wenn ANY(KNUTWURST_MEGA, KNUTWURST_MEGA_S, KNUTWURST_MEGA_P, KNUTWURST_4MAXP2)
+
+// Aktivieren Sie diese Funktion, wenn alle aktivierten Endstop-Pins unterbrechungsfähig sind.
+// Dadurch entfällt die Notwendigkeit, die Interrupt-Pins abzufragen, was viele CPU-Zyklen spart.
+//#ENDSTOP_INTERRUPTS_FEATURE definieren
+
+/**
+* Endstop-Rauschschwelle
+*
+* Aktivieren Sie diese Option, wenn Ihre Sonde oder Endanschläge aufgrund von Rauschen fälschlicherweise ausgelöst werden.
+*
+* – Höhere Werte können die Wiederholbarkeit oder Genauigkeit einiger Bettsonden beeinträchtigen.
+* – Um das Rauschen zu beheben, installieren Sie einen 100-nF-Keramikkondensator parallel zum Schalter.
+* - Diese Funktion ist für herkömmliche, auf Leiterplatten montierte Mikroschalter nicht erforderlich
+* basierend auf dem Makerbot-Design, das bereits über den 100-nF-Kondensator verfügt.
+*
+* :[2,3,4,5,6,7]
+*/
+//#Endstop_Noise_Threshold 2 definieren
+
+// Überprüfen Sie während der Homing-Bewegungen, ob die Endanschläge feststecken oder nicht verbunden sind.
+//#definieren Sie DETECT_BROKEN_ENDSTOP
+
+//========================================================================
+//============================= Bewegungseinstellungen ============================
+//========================================================================
+// @Abschnittsbewegung
+
+/**
+* Standardeinstellungen
+*
+* Diese Einstellungen können mit M502 zurückgesetzt werden
+*
+* Beachten Sie, dass gespeicherte Werte diese überschreiben, wenn EEPROM aktiviert ist.
+*/
+
+/**
+* Mit dieser Option kann jeder E-Stepper seine eigenen Faktoren für die
+* folgende Bewegungseinstellungen. Wenn weniger Faktoren angegeben werden als die
+* Gesamtzahl der Extruder, für den Rest gilt der letzte Wert.
+*/
+//#distinct_e_factors definieren
+
+/**
+* Standardachsenschritte pro Einheit (linear = Schritte/mm, rotatorisch = Schritte/°)
+* Überschreiben mit M92
+* X, Y, Z [, I [, J [, K...]]], E0 [, E1[, E2...]]
+*/
+#wenn AKTIVIERT(KNUTWURST_MEGA)
+#define DEFAULT_AXIS_STEPS_PER_UNIT { 80, 80, 400, 98 }
+#endif
+
+#wenn AKTIVIERT(KNUTWURST_MEGA_S)
+#define DEFAULT_AXIS_STEPS_PER_UNIT { 80, 80, 400, 393 }
+#endif
+
+#wenn AKTIVIERT(KNUTWURST_MEGA_X)
+#define DEFAULT_AXIS_STEPS_PER_UNIT { 80, 80, 800, 400 }
+#endif
+
+#wenn AKTIVIERT(KNUTWURST_MEGA_P)
+#define DEFAULT_AXIS_STEPS_PER_UNIT { 80, 80, 400, 415 }
+#endif
+
+#wenn AKTIVIERT(KNUTWURST_CHIRON)
+#define DEFAULT_AXIS_STEPS_PER_UNIT { 80, 100, 400, 415 }
+#endif
+
+#wenn AKTIVIERT(KNUTWURST_4MAXP2)
+#define DEFAULT_AXIS_STEPS_PER_UNIT { 100, 80, 800, 415 }
+#endif
+
+/**
+* Standardmäßige maximale Vorschubgeschwindigkeit (linear = mm/s, rotierend = °/s)
+* Überschreiben mit M203
+* X, Y, Z [, I [, J [, K...]]], E0 [, E1[, E2...]]
+*/
+#wenn AKTIVIERT(KNUTWURST_MEGA)
+#wenn AKTIVIERT(KNUTWURST_BMG)
+#define DEFAULT_MAX_FEEDRATE { 500, 500, 6, 40 }
+#anders
+#define DEFAULT_MAX_FEEDRATE { 500, 500, 6, 80 }
+#endif
+#endif
+
+#wenn AKTIVIERT(KNUTWURST_MEGA_S)
+#define DEFAULT_MAX_FEEDRATE { 500, 500, 6, 40 } // gleiche Vorschubrate für BMG
+#endif
+
+#wenn AKTIVIERT(KNUTWURST_MEGA_X)
+#wenn AKTIVIERT(KNUTWURST_BMG)
+#define DEFAULT_MAX_FEEDRATE { 120, 120, 12, 40 } // richtig für BMG?
+#anders
+#define DEFAULT_MAX_FEEDRATE { 120, 120, 12, 60 } // Danke an Simon Geis
+#endif
+#endif
+
+#wenn AKTIVIERT(KNUTWURST_MEGA_P)
+#define DEFAULT_MAX_FEEDRATE { 500, 500, 6, 40 }
+#endif
+
+#wenn AKTIVIERT(KNUTWURST_CHIRON)
+#wenn AKTIVIERT(KNUTWURST_BMG)
+#define DEFAULT_MAX_FEEDRATE { 100, 100, 20, 40 }
+#anders
+#define DEFAULT_MAX_FEEDRATE { 100, 100, 20, 60 }
+#endif
+#endif
+
+#wenn AKTIVIERT(KNUTWURST_4MAXP2)
+#define DEFAULT_MAX_FEEDRATE { 150, 150, 18, 80 }
+#endif
+
+
+//#define LIMITED_MAX_FR_EDITING // Beschränken Sie die Bearbeitung über M203 oder LCD auf DEFAULT_MAX_FEEDRATE * 2
+#wenn AKTIVIERT(LIMITED_MAX_FR_EDITING)
+#define MAX_FEEDRATE_EDIT_VALUES { 600, 600, 10, 50 } // ...oder legen Sie Ihre eigenen Bearbeitungsgrenzen fest
+#endif
+
+/**
+* Standardmäßige maximale Beschleunigung (Geschwindigkeitsänderung mit der Zeit) (linear=mm/(s^2), rotierend=°/(s^2))
+* (Maximale Startgeschwindigkeit für beschleunigte Bewegungen)
+* Überschreiben mit M201
+* X, Y, Z [, I [, J [, K...]]], E0 [, E1[, E2...]]
+*/
+#wenn ANY(KNUTWURST_MEGA, KNUTWURST_MEGA_S, KNUTWURST_MEGA_P)
+#define DEFAULT_MAX_ACCELERATION { 3000, 2000, 60, 10000 }
+#endif
+
+#wenn AKTIVIERT(KNUTWURST_MEGA_X)
+#define DEFAULT_MAX_ACCELERATION { 400, 400, 60, 10000 } // Ursprüngliche Werte
+// #define DEFAULT_MAX_ACCELERATION { 2000, 1500, 60, 10000 }
+#endif
+
+#wenn AKTIVIERT(KNUTWURST_CHIRON)
+#define DEFAULT_MAX_ACCELERATION { 350, 350, 50, 20000 }
+#endif
+
+#wenn AKTIVIERT(KNUTWURST_4MAXP2)
+#define DEFAULT_MAX_ACCELERATION { 1500, 1500, 70, 15000 }
+#endif
+
+
+//#define LIMITED_MAX_ACCEL_EDITING // Beschränken Sie die Bearbeitung über M201 oder LCD auf DEFAULT_MAX_ACCELERATION * 2
+#wenn AKTIVIERT(LIMITED_MAX_ACCEL_EDITING)
+#define MAX_ACCEL_EDIT_VALUES { 6000, 6000, 200, 20000 } // ...oder legen Sie Ihre eigenen Bearbeitungslimits fest
+#endif
+
+/**
+* Standardbeschleunigung (Geschwindigkeitsänderung mit der Zeit) (linear=mm/(s^2), rotierend=°/(s^2))
+* Überschreiben mit M204
+*
+* M204 P Beschleunigung
+* M204 R Einfahrbeschleunigung
+* M204 T Reisebeschleunigung
+*/
+
+#wenn AKTIVIERT(KNUTWURST_MEGA)
+#define DEFAULT_ACCELERATION 1500 // X-, Y-, Z- und E-Beschleunigung für Druckbewegungen
+#wenn AKTIVIERT(KNUTWURST_BMG)
+#define DEFAULT_RETRACT_ACCELERATION 1500 // E Beschleunigung für Rückzüge
+#anders
+#define DEFAULT_RETRACT_ACCELERATION 3000 // E Beschleunigung für Rückzüge
+#endif
+
+#define DEFAULT_TRAVEL_ACCELERATION 3000 // X-, Y-, Z- und E-Beschleunigung für Druckbewegungen
+#endif
+
+#wenn AKTIVIERT(KNUTWURST_MEGA_S)
+#define DEFAULT_ACCELERATION 1500 // X-, Y-, Z- und E-Beschleunigung für Druckbewegungen
+#define DEFAULT_RETRACT_ACCELERATION 1500 // E Beschleunigung für Rückzüge
+#define DEFAULT_TRAVEL_ACCELERATION 3000 // X-, Y-, Z-Beschleunigung für Fahrbewegungen (nicht druckend)
+#endif
+
+#wenn AKTIVIERT(KNUTWURST_MEGA_X)
+#define DEFAULT_ACCELERATION 400 // X-, Y-, Z- und E-Beschleunigung für Druckbewegungen
+#define DEFAULT_RETRACT_ACCELERATION 3000 // E Beschleunigung für Rückzüge
+#define DEFAULT_TRAVEL_ACCELERATION 400 // X-, Y-, Z-Beschleunigung für Fahrbewegungen (nicht druckend)
+#endif
+
+#wenn AKTIVIERT(KNUTWURST_MEGA_P)
+#define DEFAULT_ACCELERATION 1500 // X-, Y-, Z- und E-Beschleunigung für Druckbewegungen
+#define DEFAULT_RETRACT_ACCELERATION 1500 // E Beschleunigung für Rückzüge
+#define DEFAULT_TRAVEL_ACCELERATION 3000 // X-, Y-, Z-Beschleunigung für Fahrbewegungen (nicht druckend)
+#endif
+
+#wenn AKTIVIERT(KNUTWURST_CHIRON)
+#define DEFAULT_ACCELERATION 350 // X-, Y-, Z- und E-Beschleunigung für Druckbewegungen
+#define DEFAULT_RETRACT_ACCELERATION 2000 // 3000 // E Beschleunigung für Rückzüge
+#define DEFAULT_TRAVEL_ACCELERATION 350 // X-, Y-, Z-Beschleunigung für Fahrbewegungen (nicht druckend)
+#endif
+
+#wenn AKTIVIERT(KNUTWURST_4MAXP2)
+#define DEFAULT_ACCELERATION 800 // X-, Y-, Z- und E-Beschleunigung für Druckbewegungen
+#define DEFAULT_RETRACT_ACCELERATION 1500 // E Beschleunigung für Rückzüge
+#define DEFAULT_TRAVEL_ACCELERATION 1000 // X-, Y-, Z-Beschleunigung für Fahrbewegungen (nicht druckend)
+#endif
+
+/**
+* Standard-Ruckgrenzen (mm/s)
+* Überschreiben mit M205 XYZ . . . E
+*
+* „Ruck“ gibt die minimale Geschwindigkeitsänderung an, die eine Beschleunigung erfordert.
+* Wenn beim Ändern von Geschwindigkeit und Richtung der Unterschied kleiner ist als der
+* Wert hier festgelegt, es kann sofort passieren.
+*/
+#CLASSIC_JERK definieren
+#wenn AKTIVIERT(CLASSIC_JERK)
+#wenn ANY(KNUTWURST_MEGA, KNUTWURST_MEGA_S, KNUTWURST_MEGA_P)
+#define DEFAULT_XJERK 8.0
+#define DEFAULT_YJERK 8.0
+#define DEFAULT_ZJERK 0.4
+#elif AKTIVIERT(KNUTWURST_MEGA_X)
+#define DEFAULT_XJERK 4.0
+#define DEFAULT_YJERK 4.0
+#define DEFAULT_ZJERK 0.2
+#elif AKTIVIERT(KNUTWURST_CHIRON)
+#define DEFAULT_XJERK 4.0
+#define DEFAULT_YJERK 4.0
+#define DEFAULT_ZJERK 0.4
+#elif AKTIVIERT(KNUTWURST_4MAXP2)
+#define DEFAULT_XJERK 8.0
+#define DEFAULT_YJERK 8.0
+#define DEFAULT_ZJERK 0.2
+#endif
+
+// #define DEFAULT_IJERK 0.3
+// #define DEFAULT_JJERK 0.3
+// #define DEFAULT_KJERK 0.3
+// #define DEFAULT_UJERK 0.3
+// #define DEFAULT_VJERK 0.3
+// #define DEFAULT_WJERK 0.3
+
+//#define TRAVEL_EXTRA_XYJERK 0.0 // Zusätzliche Rucktoleranz für alle Fahrbewegungen
+
+//#define LIMITED_JERK_EDITING // Beschränken Sie die Bearbeitung über M205 oder LCD auf DEFAULT_aJERK * 2
+#wenn AKTIVIERT(LIMITED_JERK_EDITING)
+#define MAX_JERK_EDIT_VALUES { 20, 20, 0.6, 10 } // ...oder legen Sie Ihre eigenen Editiergrenzen fest
+#endif
+#endif
+
+#define DEFAULT_EJERK 10.0 // Kann von Linear Advance verwendet werden
+
+/**
+* Kreuzungsabweichungsfaktor
+*
+* Sehen:
+* https://reprap.org/forum/read.php?1,739819
+* https://blog.kyneticcnc.com/2018/10/computing-junction-deviation-for-marlin.html
+*/
+#wenn DEAKTIVIERT(CLASSIC_JERK)
+#wenn ANY(KNUTWURST_MEGA, KNUTWURST_MEGA_S, KNUTWURST_MEGA_P)
+#define JUNCTION_DEVIATION_MM 0.013 // (mm) Abstand von der tatsächlichen Kreuzungskante
+#endif
+
+#wenn AKTIVIERT(KNUTWURST_MEGA_X)
+#define JUNCTION_DEVIATION_MM 0.016 // (mm) Abstand von der tatsächlichen Kreuzungskante
+#endif
+
+#wenn AKTIVIERT(KNUTWURST_CHIRON)
+#define JUNCTION_DEVIATION_MM 0.018 // (mm) Abstand von der tatsächlichen Kreuzungskante
+#endif
+
+#wenn AKTIVIERT(KNUTWURST_4MAXP2)
+#define JUNCTION_DEVIATION_MM 0.016 // (mm) Abstand von der tatsächlichen Kreuzungskante
+#endif
+
+#define JD_HANDLE_SMALL_SEGMENTS // Krümmungsschätzung statt nur des Verbindungswinkels verwenden
+// für kleine Segmente (< 1 mm) mit großen Verbindungswinkeln (> 135 °).
+#endif
+
+/**
+* S-Kurven-Beschleunigung
+*
+* Diese Option eliminiert Vibrationen während des Druckens durch den Einbau einer Bézier
+* Kurve zur Bewegungsbeschleunigung, wodurch wesentlich sanftere Richtungsänderungen erfolgen.
+*
+* Siehe https://github.com/synthetos/TinyG/wiki/Jerk-Controlled-Motion-Explained
+*/
+#define S_CURVE_ACCELERATION
+
+//=======================================================================
+//============================= Z-Sonde-Optionen =============================
+//=======================================================================
+// @section-Sonden
+
+//
+// Siehe https://marlinfw.org/docs/configuration/probes.html
+//
+
+/**
+* Aktivieren Sie diese Option für eine Sonde, die an den Z-MIN-Pin angeschlossen ist.
+* Die Sonde ersetzt den Z-MIN-Endanschlag und wird für die Z-Homing-Bewegung verwendet.
+* (Aktiviert automatisch USE_PROBE_FOR_Z_HOMING.)
+*/
+#wenn BEIDE(KNUTWURST_BLTOUCH, KNUTWURST_4MAXP2)
+#define Z_MIN_PROBE_USES_Z_MIN_ENDSTOP_PIN
+#endif
+
+// Erzwingt die Verwendung der Sonde für die Z-Achsen-Homing
+//#define USE_PROBE_FOR_Z_HOMING
+
+/**
+* Z_MIN_PROBE_PIN
+*
+* Überschreiben Sie diesen Pin nur, wenn die Sonde nicht angeschlossen werden kann an
+* der Standard-Z_MIN_PROBE_PIN für das ausgewählte MOTHERBOARD.
+*
+* – Die einfachste Möglichkeit besteht darin, einen freien Endanschlagstecker zu verwenden.
+* – Verwenden Sie 5 V für mit Strom versorgte (normalerweise induktive) Sensoren.
+*
+* - Für einfache Schalter...
+* - Normalerweise geschlossen (NC) auch mit GND verbinden.
+* - Normalerweise offen (NO), auch an 5 V anschließen.
+*/
+//#define Z_MIN_PROBE_PIN 32 // Pin 32 ist der RAMPS-Standard
+
+/**
+* Sondentyp
+*
+* Inbusschlüsselsonden, Servosonden, Z-Schlittensonden, FIX_MOUNTED_PROBE usw.
+* Aktivieren Sie eine davon, um die unten stehende automatische Bettnivellierung zu verwenden.
+*/
+
+/**
+* Die „Manuelle Sonde“ bietet die Möglichkeit, eine „automatische“ Bettnivellierung ohne Sonde durchzuführen.
+* Verwenden Sie G29 wiederholt und passen Sie die Z-Höhe an jedem Punkt mit Bewegungsbefehlen an
+* oder (mit LCD_BED_LEVELING) der LCD-Controller.
+*/
+#wenn NONE(KNUTWURST_BLTOUCH, KNUTWURST_CHIRON)
+#define PROBE_MANUALLY
+#endif
+
+/**
+* Eine fest montierte Sonde wird entweder nicht eingesetzt oder muss manuell eingesetzt werden.
+* (z. B. eine induktive Sonde oder ein düsenbasierter Sondenschalter.)
+*/
+//#definiere FIX_MOUNTED_PROBE
+
+/**
+* Benutzen Sie die Düse als Sonde, wie bei einem leitfähigen
+* Düsensystem oder piezoelektrischer Smart-Effektor.
+*/
+//#NOZZLE_AS_PROBE definieren
+
+/**
+* Z-Servosonde, beispielsweise ein Endschalter an einem rotierenden Arm.
+*/
+#wenn AKTIVIERT(KNUTWURST_CHIRON)
+#define Z_PROBE_SERVO_NR 0 // Standardmäßig SERVO 0-Anschluss.
+#define Z_SERVO_ANGLES { 70, 0 } // Z-Servo-Ausfahr- und Verstauwinkel
+#endif
+
+/**
+* Die BLTouch-Sonde verwendet einen Hall-Effekt-Sensor und emuliert ein Servo.
+*/
+#wenn AKTIVIERT(KNUTWURST_BLTOUCH)
+#BLTOUCH definieren
+#endif
+
+/**
+* MagLev V4-Sonde von MDD
+*
+* Diese Sonde wird durch die Stromversorgung eines eingebauten Elektromagneten eingesetzt und aktiviert.
+*/
+//#MAGLEV4 definieren
+#wenn AKTIVIERT(MAGLEV4)
+//#define MAGLEV_TRIGGER_PIN 11 // Auf den angeschlossenen Digitalausgang einstellen
+#define MAGLEV_TRIGGER_DELAY 15 // Bei einer Änderung besteht die Gefahr einer Überhitzung der Spule
+#endif
+
+/**
+* Touch-MI-Sonde von hotends.fr
+*
+* Diese Sonde wird eingesetzt und aktiviert, indem die X-Achse zu einem Magneten an der Bettkante bewegt wird.
+* Standardmäßig wird angenommen, dass sich der Magnet auf der linken Seite befindet und durch ein Haus aktiviert wird. Wenn der Magnet
+* Aktivieren Sie rechts TOUCH_MI_DEPLOY_XPOS und setzen Sie es auf die Bereitstellungsposition.
+*
+* Erfordert außerdem: BABYSTEPPING, BABYSTEP_ZPROBE_OFFSET, Z_SAFE_HOMING,
+* und eine minimale Z_HOMING_HEIGHT von 10.
+*/
+//#TOUCH_MI_PROBE definieren
+#wenn AKTIVIERT(TOUCH_MI_PROBE)
+#define TOUCH_MI_RETRACT_Z 0.5 // Höhe, auf die sich die Sonde zurückzieht
+//#define TOUCH_MI_DEPLOY_XPOS (X_MAX_BED + 2) // Für einen Magneten auf der rechten Seite des Bettes
+//#define TOUCH_MI_MANUAL_DEPLOY // Für manuelle Bereitstellung (LCD-Menü)
+#endif
+
+// Eine Sonde, die mit einem Solenoidstift (SOL1_PIN) eingesetzt und verstaut wird
+//#Magnetspulensonde definieren
+
+// Eine Schlittensonde wie die von Charles Bell.
+//#Z_PROBE_SLED definieren
+//#define SLED_DOCKING_OFFSET 5 // Die zusätzliche Distanz, die die X-Achse zurücklegen muss, um den Schlitten aufzunehmen. 0 sollte ausreichen, Sie können den Wert aber auch weiter erhöhen, wenn Sie möchten.
+
+// Eine Sonde, die durch Bewegen der X-Achse eingesetzt wird, wie beispielsweise die von Marty Rice entwickelte Zahnstangensonde Wilson II.
+//#ZAHNEN_UND_RITZEL_PROBE definieren
+#wenn AKTIVIERT(ZAHNEN- UND RITZELPROBE)
+#define Z_PROBE_DEPLOY_X X_MIN_POS
+#define Z_PROBE_RETRACT_X X_MAX_POS
+#endif
+
+/**
+* Magnetisch montierte Sonde
+* Für Sonden wie Euclid, Klicky, Klackender usw.
+*/
+//#MAG_MOUNTED_PROBE definieren
+#wenn AKTIVIERT(MAG_MOUNTED_PROBE)
+#define PROBE_DEPLOY_FEEDRATE (133*60) // (mm/min) Geschwindigkeit der Sondenausbringung
+#define PROBE_STOW_FEEDRATE (133*60) // (mm/min) Verstaugeschwindigkeit der Sonde
+
+#define MAG_MOUNTED_DEPLOY_1 { PROBE_DEPLOY_FEEDRATE, { 245, 114, 30 } } // Zur Seite verschieben Andocken und Sonde anbringen
+#define MAG_MOUNTED_DEPLOY_2 { PROBE_DEPLOY_FEEDRATE, { 210, 114, 30 } } // Sonde vom Dock wegbewegen
+#define MAG_MOUNTED_DEPLOY_3 { PROBE_DEPLOY_FEEDRATE, { 0, 0, 0 } } // Zusätzlicher Zug, falls nötig
+#define MAG_MOUNTED_DEPLOY_4 { PROBE_DEPLOY_FEEDRATE, { 0, 0, 0 } } // Zusätzlicher Zug, falls nötig
+#define MAG_MOUNTED_DEPLOY_5 { PROBE_DEPLOY_FEEDRATE, { 0, 0, 0 } } // Zusätzlicher Zug, falls nötig
+#define MAG_MOUNTED_STOW_1 { PROBE_STOW_FEEDRATE, { 245, 114, 20 } } // Zum Dock verschieben
+#define MAG_MOUNTED_STOW_2 { PROBE_STOW_FEEDRATE, { 245, 114, 0 } } // Sonde neben dem Entferner platzieren
+#define MAG_MOUNTED_STOW_3 { PROBE_STOW_FEEDRATE, { 230, 114, 0 } } // Seitliche Bewegung zum Entfernen der Sonde
+#define MAG_MOUNTED_STOW_4 { PROBE_STOW_FEEDRATE, { 210, 114, 20 } } // Seitliche Bewegung zum Entfernen der Sonde
+#define MAG_MOUNTED_STOW_5 { PROBE_STOW_FEEDRATE, { 0, 0, 0 } } // Zusätzliche Bewegung, falls erforderlich
+#endif
+
+// Duet Smart Effector (für Delta-Drucker) - https://docs.duet3d.com/en/Duet3D_hardware/Accessories/Smart_Effector
+// Wenn der Pin definiert ist, können Sie M672 verwenden, um die Sondenempfindlichkeit einzustellen/zurückzusetzen.
+//#DUET_SMART_EFFECTOR definieren
+#wenn AKTIVIERT(DUET_SMART_EFFECTOR)
+#define SMART_EFFECTOR_MOD_PIN -1 // Verbinde einen GPIO-Pin mit dem Smart Effector MOD-Pin
+#endif
+
+/**
+* Verwenden Sie StallGuard2, um das Bett mit der Düse zu prüfen.
+* Erfordert StallGuard-fähige Schrittmotortreiber von Trinamic.
+* ACHTUNG: Dies kann zu Schäden an Maschinen mit Z-Gewindespindeln führen.
+* Gehen Sie beim Einrichten dieser Funktion äußerst vorsichtig vor.
+*/
+//#SENSORLESS_PROBING definieren
+
+/**
+* Mit Inbusschlüssel einziehbare Z-Sonde, wie sie bei vielen Kossel-Delta-Druckern zu finden ist - https://reprap.org/wiki/Kossel#Autolevel_probe
+* Wird durch Berühren des Z-Achsen-Riemens ausgefahren. Wird durch Herunterdrücken der Sonde eingefahren.
+*/
+//#definiere Z_PROBE_ALLEN_KEY
+#wenn AKTIVIERT(Z_PROBE_ALLEN_KEY)
+// 2 oder 3 Koordinatensätze zum Ausfahren und Einfahren des gefederten Tastsystems bei G29,
+// wenn kein servobetätigter Tastkopf definiert ist. Entfernen Sie die entsprechenden Kommentare für Ihren Drucker/Tastkopf.
+
+#define Z_PROBE_ALLEN_KEY_DEPLOY_1 { 30.0, DELTA_PRINTABLE_RADIUS, 100.0 }
+#define Z_PROBE_ALLEN_KEY_DEPLOY_1_FEEDRATE XY_PROBE_FEEDRATE
+
+#define Z_PROBE_ALLEN_KEY_DEPLOY_2 { 0.0, DELTA_PRINTABLE_RADIUS, 100.0 }
+#define Z_PROBE_ALLEN_KEY_DEPLOY_2_FEEDRATE (XY_PROBE_FEEDRATE)/10
+
+#define Z_PROBE_ALLEN_KEY_DEPLOY_3 { 0,0, (DELTA_PRINTABLE_RADIUS) * 0,75, 100,0 }
+#define Z_PROBE_ALLEN_KEY_DEPLOY_3_FEEDRATE XY_PROBE_FEEDRATE
+
+#define Z_PROBE_ALLEN_KEY_STOW_1 { -64.0, 56.0, 23.0 } // Bewegen Sie die Sonde in Position
+#define Z_PROBE_ALLEN_KEY_STOW_1_FEEDRATE XY_PROBE_FEEDRATE
+
+#define Z_PROBE_ALLEN_KEY_STOW_2 { -64.0, 56.0, 3.0 } // Nach unten drücken
+#define Z_PROBE_ALLEN_KEY_STOW_2_FEEDRATE (XY_PROBE_FEEDRATE)/10
+
+#define Z_PROBE_ALLEN_KEY_STOW_3 { -64.0, 56.0, 50.0 } // Zum Löschen nach oben verschieben
+#define Z_PROBE_ALLEN_KEY_STOW_3_FEEDRATE XY_PROBE_FEEDRATE
+
+#define Z_PROBE_ALLEN_KEY_STOW_4 { 0.0, 0.0, 50.0 }
+#define Z_PROBE_ALLEN_KEY_STOW_4_FEEDRATE XY_PROBE_FEEDRATE
+
+#endif // Z_PROBE_ALLEN_KEY
+
+/**
+* Düse-zu-Sonde-Offsets { X, Y, Z }
+*
+* X- und Y-Versatz
+* Messen Sie mit einem Messschieber oder Lineal den Abstand von der Spitze des
+* die Düse zum Mittelpunkt der Sonde in der X- und Y-Achse.
+*
+* Z-Versatz
+* – Verwenden Sie für den Z-Versatz Ihren besten bekannten Wert und passen Sie ihn zur Laufzeit an.
+* – Herkömmliche Sonden lösen unterhalb der Düse aus und haben negative Werte für den Z-Versatz.
+* - Sonden, die oberhalb der Düsenhöhe auslösen, sind selten, aber vorhanden. Bei Verwendung
+* Sonden wie diese, setzen Sie Z_CLEARANCE_DEPLOY_PROBE und Z_CLEARANCE_BETWEEN_PROBES sorgfältig
+* um Kollisionen beim Sondieren zu vermeiden.
+*
+* Abstimmen und Anpassen
+* - Sonden-Offsets können zur Laufzeit mit „M851“, LCD-Menüs, Babystepping usw. angepasst werden.
+* - PROBE_OFFSET_WIZARD (Configuration_adv.h) kann zum Einstellen des Z-Offsets verwendet werden.
+*
+* Unter der Annahme einer typischen Arbeitsbereichsausrichtung:
+* - Die Sonde RECHTS von der Düse hat einen positiven X-Versatz
+* - Die Sonde LINKS von der Düse hat einen negativen X-Versatz
+* - Die Sonde an der Rückseite der Düse hat einen positiven Y-Versatz
+* - Die Sonde VOR der Düse hat einen negativen Y-Versatz
+*
+* Einige Beispiele:
+* #define NOZZLE_TO_PROBE_OFFSET { 10, 10, -1 } // Beispiel "1"
+* #define NOZZLE_TO_PROBE_OFFSET {-10, 5, -1 } // Beispiel "2"
+* #define NOZZLE_TO_PROBE_OFFSET { 5, -5, -1 } // Beispiel "3"
+* #define NOZZLE_TO_PROBE_OFFSET {-15,-10, -1 } // Beispiel "4"
+*
+* +-- ZURÜCK ---+
+* | [+] |
+* L | 1 | R <-- Beispiel "1" (rechts+, hinten+)
+* E | 2 | I <-- Beispiel "2" ( links-, zurück+)
+* F |[-] N [+]| G <-- Düse
+* T | 3 | H <-- Beispiel "3" (rechts+, vorne-)
+* | 4 | T <-- Beispiel "4" ( links-, vorne-)
+* | [-] |
+* O-- VORNE --+
+*/
+#wenn AKTIVIERT(KNUTWURST_BLTOUCH)
+#define NOZZLE_TO_PROBE_OFFSET { -2, -25, -0.4 } // https://www.thingiverse.com/thing:2824005
+// #define NOZZLE_TO_PROBE_OFFSET { 29, -15, 0 } //X-Schlitten
+#endif
+
+#wenn AKTIVIERT(KNUTWURST_CHIRON)
+#define NOZZLE_TO_PROBE_OFFSET { 0, 0, -16.8 }
+#endif
+
+#wenn NONE(KNUTWURST_BLTOUCH, KNUTWURST_CHIRON)
+#define NOZZLE_TO_PROBE_OFFSET { 10, 10, 0 }
+#endif
+
+// Die meisten Sonden sollten von den Rändern des Bettes ferngehalten werden, aber
+// mit NOZZLE_AS_PROBE kann dies bei einem größeren Prüfbereich negativ sein.
+#wenn AKTIVIERT(KNUTWURST_CHIRON)
+#define PROBING_MARGIN 15
+#anders
+#define PROBING_MARGIN 35
+#endif
+
+// Verfahrgeschwindigkeit der X- und Y-Achse (mm/min) zwischen den Sonden
+#define XY_PROBE_FEEDRATE 8000
+
+// Vorschub (mm/min) für die erste Annäherung bei doppelter Antastung (MULTIPLE_PROBING == 2)
+#define Z_PROBE_FEEDRATE_FAST 600// HOMING_FEEDRATE_Z
+
+// Vorschub (mm/min) für die „präzise“ Antastung jedes Punktes
+#define Z_PROBE_FEEDRATE_SLOW (Z_PROBE_FEEDRATE_FAST / 2)
+
+/**
+* Sondenaktivierungsschalter
+* Ein Schalter, der die ordnungsgemäße Bereitstellung anzeigt, oder eine optische
+* Schalter wird ausgelöst, wenn sich der Wagen in der Nähe des Bettes befindet.
+*/
+//#PROBE_ACTIVATION_SWITCH definieren
+#wenn AKTIVIERT(PROBE_ACTIVATION_SWITCH)
+#define PROBE_ACTIVATION_SWITCH_STATE LOW // Status, der anzeigt, dass die Sonde aktiv ist
+//#define PROBE_ACTIVATION_SWITCH_PIN PC6 // Standard-PIN überschreiben
+#endif
+
+/**
+* Tarieren Sie die Sonde (bestimmen Sie den Nullpunkt) vor jeder Sonde.
+* Nützlich für einen Dehnungsmessstreifen oder Piezosensor, der ausklammern muss
+* Elemente wie Kabel, die am Schlitten ziehen.
+*/
+//#PROBE_TARE definieren
+#wenn AKTIVIERT(PROBE_TARE)
+#define PROBE_TARE_TIME 200 // (ms) Zeit zum Halten des Tarastifts
+#define PROBE_TARE_DELAY 200 // (ms) Verzögerung nach Tara vor
+#define PROBE_TARE_STATE HIGH // Status zum Schreiben des Pins für Tara
+//#define PROBE_TARE_PIN PA5 // Standard-Pin überschreiben
+#wenn AKTIVIERT(PROBE_ACTIVATION_SWITCH)
+//#define PROBE_TARE_ONLY_WHILE_INACTIVE // Tarieren/Sondieren schlägt fehl, wenn PROBE_ACTIVATION_SWITCH aktiv ist
+#endif
+#endif
+
+/**
+* Sonde aktivieren / deaktivieren
+* Die Sonde liefert nur dann ein ausgelöstes Signal, wenn sie aktiviert ist.
+*/
+//#PROBE_ENABLE_DISABLE definieren
+#wenn AKTIVIERT(PROBE_ENABLE_DISABLE)
+//#define PROBE_ENABLE_PIN -1 // Überschreibe hier den Standard-PIN
+#endif
+
+/**
+* Mehrfachsondierung
+*
+* Sie erhalten möglicherweise bessere Ergebnisse, wenn Sie die Sonde zwei- oder mehrmals prüfen.
+* Mit EXTRA_PROBING werden die eher untypischen Messwerte ignoriert.
+*
+* Insgesamt 2 schnelle/langsame Sonden mit gewichtetem Durchschnitt.
+* Bei einer Gesamtzahl von 3 oder mehr werden weitere langsame Sonden hinzugefügt, wobei der Durchschnitt ermittelt wird.
+*/
+//#definieren Sie MULTIPLE_PROBING 2
+//#EXTRA_PROBING definieren 1
+
+/**
+* Z-Sonden benötigen Freiraum beim Ausbringen, Verstauen und Transportieren zwischen
+* Prüfpunkte, um ein Berühren des Betts und anderer Hardware zu vermeiden.
+* Servomontierte Sonden erfordern zusätzlichen Platz, damit sich der Arm drehen kann.
+* Induktive Sonden benötigen Platz, um nicht zu früh auszulösen.
+*
+* Mit diesen Einstellungen können Sie die Entfernung (mm) festlegen, um die die Sonde angehoben werden soll (oder
+* Bett absenken). Die hier eingestellten Werte gelten über alle (negativen)
+* Sonden-Z-Offset mit NOZZLE_TO_PROBE_OFFSET, M851 oder LCD eingestellt.
+* Gültig sind hier nur ganzzahlige Werte >= 1.
+*
+* Beispiel: „M851 Z-5“ mit einem ABSTAND von 4 => 9 mm vom Bett zur Düse.
+* Aber: „M851 Z+1“ mit einem ABSTAND von 2 => 2 mm vom Bett zur Düse.
+*/
+#define Z_CLEARANCE_DEPLOY_PROBE 20 // (mm) Z-Freiraum für Ausbringen/Verstauen
+#define Z_CLEARANCE_BETWEEN_PROBES 5 // (mm) Z-Abstand zwischen den Prüfpunkten
+#define Z_CLEARANCE_MULTI_PROBE 5 // (mm) Z-Abstand zwischen mehreren Sonden
+//#define Z_AFTER_PROBING 5 // (mm) Z-Position nach Abschluss der Sondierung
+
+#define Z_PROBE_LOW_POINT -10 // (mm) Größter Abstand unterhalb des Auslösepunkts vor dem Anhalten
+
+//Geben Sie für M851 einen Bereich zum Anpassen des Z-Sondenversatzes an
+#define Z_PROBE_OFFSET_RANGE_MIN -50
+#define Z_PROBE_OFFSET_RANGE_MAX 50
+
+// Aktivieren Sie den M48-Wiederholbarkeitstest, um die Genauigkeit der Sonde zu testen
+#wenn AKTIVIERT(KNUTWURST_BLTOUCH)
+#define Z_MIN_PROBE_REPEATABILITY_TEST
+#endif
+
+// Vor dem Ausbringen/Verstauen eine Pause zur Bestätigung durch den Benutzer einlegen
+//#definieren Sie PAUSE_BEFORE_DEPLOY_STOW
+#wenn AKTIVIERT(PAUSE_BEFORE_DEPLOY_STOW)
+//#define PAUSE_PROBE_DEPLOY_WHEN_TRIGGERED // Für die manuelle Bereitstellung der Allenkey-Sonde
+#endif
+
+/**
+* Aktivieren Sie eine oder mehrere der folgenden Optionen, wenn die Prüfung unzuverlässig erscheint.
+* Heizungen und/oder Lüfter können während der Messung deaktiviert werden, um den elektrischen
+* Lärm. Es kann auch eine Verzögerung hinzugefügt werden, damit Lärm und Vibrationen nachlassen.
+* Diese Optionen sind besonders nützlich für die BLTouch-Sonde, können aber auch verbessern
+* Messwerte mit induktiven Sonden und Piezosensoren.
+*/
+//#define PROBING_HEATERS_OFF // Heizungen beim Prüfen ausschalten
+#wenn AKTIVIERT(PROBING_HEATERS_OFF)
+//#define WAIT_FOR_BED_HEATER // Warten Sie, bis das Bett zwischen den Sonden wieder aufgeheizt ist (zur Verbesserung der Genauigkeit)
+//#define WAIT_FOR_HOTEND // Warten Sie, bis das Hotend zwischen den Sonden wieder aufgeheizt ist (um die Genauigkeit zu verbessern und Kaltextrusion zu verhindern)
+#endif
+//#define PROBING_FANS_OFF // Lüfter beim Prüfen ausschalten
+//#define PROBING_ESTEPPERS_OFF // Schaltet alle Extruder-Stepper beim Prüfen aus
+//#define PROBING_STEPPERS_OFF // Beim Prüfen alle Schrittmotoren ausschalten (sofern sie nicht zum Halten der Position benötigt werden) (einschließlich Extruder)
+//#define DELAY_BEFORE_PROBING 200 // (ms) Um zu verhindern, dass Vibrationen Piezosensoren auslösen
+
+// Erfordert Mindestdüsen- und/oder Betttemperatur zum Prüfen
+//#definieren Sie PREHEAT_BEFORE_PROBING
+#wenn AKTIVIERT(VORHEIZUNG_VOR_PROBING)
+#define PROBING_NOZZLE_TEMP 120 // (°C) Gilt derzeit nur für E0
+#define PROBING_BED_TEMP 50
+#endif
+
+// @Abschnitt Schrittmotortreiber
+
+// Für invertierende Stepper Enable Pins (Active Low) verwenden Sie 0, für nicht invertierende (Active High) verwenden Sie 1
+// :{ 0:'Niedrig', 1:'Hoch' }
+#define X_ENABLE_ON 0
+#define Y_ENABLE_ON 0
+#define Z_ENABLE_ON 0
+#define E_ENABLE_ON 0 // Für alle Extruder
+//#definiere I_ENABLE_ON 0
+//#definiere J_ENABLE_ON 0
+//#definiere K_ENABLE_ON 0
+//#definiere U_ENABLE_ON 0
+//#definiere V_ENABLE_ON 0
+//#definiere W_ENABLE_ON 0
+
+// Achsenschrittmotoren sofort deaktivieren, wenn sie nicht schrittweise betrieben werden.
+// WARNUNG: Beim Abschalten der Motoren besteht die Möglichkeit eines Verlusts der Positionsgenauigkeit!
+//#definiere DISABLE_X
+//#definiere DISABLE_Y
+//#definiere DISABLE_Z
+//#definiere DISABLE_I
+//#definiere DISABLE_J
+//#definiere DISABLE_K
+//#definiere DISABLE_U
+//#definiere DISABLE_V
+//#definiere DISABLE_W
+
+// Schaltet das Blinken der Anzeige aus, das vor einer möglichen Genauigkeitsreduzierung warnt
+//#definieren Sie DISABLE_REDUCED_ACCURACY_WARNING
+
+// @Abschnittsextruder
+
+#define DISABLE_E // Deaktiviere den Extruder, wenn du nicht gehst
+#define DISABLE_OTHER_EXTRUDERS // Nur den aktiven Extruder aktiviert lassen
+
+// @Abschnittsbewegung
+
+#wenn DEAKTIVIERT(KNUTWURST_TMC)
+#wenn ANY(KNUTWURST_MEGA, KNUTWURST_MEGA_S, KNUTWURST_MEGA_X)
+//Kehrt die Schrittrichtung um. Ändert den Motoranschluss (oder kehrt ihn um), wenn eine Achse in die falsche Richtung läuft.
+#define INVERT_X_DIR true
+#define INVERT_Y_DIR false
+#define INVERT_Z_DIR false
+// #define INVERT_I_DIR false
+// #define INVERT_J_DIR false
+// #define INVERT_K_DIR false
+// #define INVERT_U_DIR false
+// #define INVERT_V_DIR false
+// #define INVERT_W_DIR false
+
+// @Abschnittsextruder
+
+// Für Direktantriebsextruder v9 auf „true“ setzen, für Getriebeextruder auf „false“.
+#wenn AKTIVIERT(KNUTWURST_BMG)
+#define INVERT_E0_DIR true // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#anders
+#define INVERT_E0_DIR false // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#endif
+
+#define INVERT_E1_DIR false // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#define INVERT_E2_DIR false
+#define INVERT_E3_DIR false
+#define INVERT_E4_DIR false
+#define INVERT_E5_DIR false
+#define INVERT_E6_DIR false
+#define INVERT_E7_DIR false
+#endif
+
+#wenn AKTIVIERT(KNUTWURST_MEGA_P)
+//Kehrt die Schrittrichtung um. Ändert den Motoranschluss (oder kehrt ihn um), wenn eine Achse in die falsche Richtung läuft.
+#define INVERT_X_DIR false // auf true setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#define INVERT_Y_DIR true // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#define INVERT_Z_DIR false // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+
+// @Abschnittsextruder
+
+// Für Direktantriebsextruder v9 auf „true“ setzen, für Getriebeextruder auf „false“.
+#wenn AKTIVIERT(KNUTWURST_BMG)
+#define INVERT_E0_DIR false // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#anders
+#define INVERT_E0_DIR true // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#endif
+
+#define INVERT_E1_DIR false // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#define INVERT_E2_DIR false
+#define INVERT_E3_DIR false
+#define INVERT_E4_DIR false
+#define INVERT_E5_DIR false
+#define INVERT_E6_DIR false
+#define INVERT_E7_DIR false
+#endif
+
+#wenn AKTIVIERT(KNUTWURST_CHIRON)
+//Kehrt die Schrittrichtung um. Ändert den Motoranschluss (oder kehrt ihn um), wenn eine Achse in die falsche Richtung läuft.
+#define INVERT_X_DIR true // auf true setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#define INVERT_Y_DIR true // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#define INVERT_Z_DIR true // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+
+// @Abschnittsextruder
+
+// Für Direktantriebsextruder v9 auf „true“ setzen, für Getriebeextruder auf „false“.
+#wenn AKTIVIERT(KNUTWURST_BMG)
+#define INVERT_E0_DIR true // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#anders
+#define INVERT_E0_DIR false // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#endif
+
+#define INVERT_E1_DIR true // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#define INVERT_E2_DIR false
+#define INVERT_E3_DIR false
+#define INVERT_E4_DIR false
+#define INVERT_E5_DIR false
+#define INVERT_E6_DIR false
+#define INVERT_E7_DIR false
+#endif
+
+#wenn AKTIVIERT(KNUTWURST_4MAXP2)
+//Kehrt die Schrittrichtung um. Ändert den Motoranschluss (oder kehrt ihn um), wenn eine Achse in die falsche Richtung läuft.
+#define INVERT_X_DIR false // auf true setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#define INVERT_Y_DIR true // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#define INVERT_Z_DIR false // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+
+// @Abschnittsextruder
+
+// Für Direktantriebsextruder v9 auf „true“ setzen, für Getriebeextruder auf „false“.
+#wenn AKTIVIERT(KNUTWURST_BMG)
+#define INVERT_E0_DIR false // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#anders
+#define INVERT_E0_DIR true // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#endif
+#define INVERT_E1_DIR true // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#define INVERT_E2_DIR false
+#define INVERT_E3_DIR false
+#define INVERT_E4_DIR false
+#define INVERT_E5_DIR false
+#define INVERT_E6_DIR false
+#define INVERT_E7_DIR false
+#endif
+#endif // wenn DEAKTIVIERT(KNUTWURST_TMC)
+
+#wenn AKTIVIERT(KNUTWURST_TMC)
+#wenn ANY(KNUTWURST_MEGA, KNUTWURST_MEGA_S, KNUTWURST_MEGA_X)
+//Kehrt die Schrittrichtung um. Ändert den Motoranschluss (oder kehrt ihn um), wenn eine Achse in die falsche Richtung läuft.
+#define INVERT_X_DIR false // auf true setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#define INVERT_Y_DIR true // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#define INVERT_Z_DIR true // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+
+// @Abschnittsextruder
+
+// Für Direktantriebsextruder v9 auf „true“ setzen, für Getriebeextruder auf „false“.
+#wenn AKTIVIERT(KNUTWURST_BMG)
+#define INVERT_E0_DIR false // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#anders
+#define INVERT_E0_DIR true // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#endif
+
+#define INVERT_E1_DIR true // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#define INVERT_E2_DIR false
+#define INVERT_E3_DIR false
+#define INVERT_E4_DIR false
+#define INVERT_E5_DIR false
+#define INVERT_E6_DIR false
+#define INVERT_E7_DIR false
+#endif
+
+#wenn AKTIVIERT(KNUTWURST_MEGA_P)
+//Kehrt die Schrittrichtung um. Ändert den Motoranschluss (oder kehrt ihn um), wenn eine Achse in die falsche Richtung läuft.
+#define INVERT_X_DIR false // auf true setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#define INVERT_Y_DIR true // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#define INVERT_Z_DIR true // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+
+// @Abschnittsextruder
+
+// Für Direktantriebsextruder v9 auf „true“ setzen, für Getriebeextruder auf „false“.
+#wenn AKTIVIERT(KNUTWURST_BMG)
+#define INVERT_E0_DIR true // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#anders
+#define INVERT_E0_DIR false // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#endif
+
+#define INVERT_E1_DIR true // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#define INVERT_E2_DIR false
+#define INVERT_E3_DIR false
+#define INVERT_E4_DIR false
+#define INVERT_E5_DIR false
+#define INVERT_E6_DIR false
+#define INVERT_E7_DIR false
+#endif
+
+#wenn AKTIVIERT(KNUTWURST_CHIRON)
+//Kehrt die Schrittrichtung um. Ändert den Motoranschluss (oder kehrt ihn um), wenn eine Achse in die falsche Richtung läuft.
+#define INVERT_X_DIR false // auf true setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#define INVERT_Y_DIR false // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#define INVERT_Z_DIR false // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+
+// @Abschnittsextruder
+
+// Für Direktantriebsextruder v9 auf „true“ setzen, für Getriebeextruder auf „false“.
+#wenn AKTIVIERT(KNUTWURST_BMG)
+#define INVERT_E0_DIR false // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#anders
+#define INVERT_E0_DIR true // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#endif
+
+#define INVERT_E1_DIR false // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#define INVERT_E2_DIR false
+#define INVERT_E3_DIR false
+#define INVERT_E4_DIR false
+#define INVERT_E5_DIR false
+#define INVERT_E6_DIR false
+#define INVERT_E7_DIR false
+#endif
+
+#wenn AKTIVIERT(KNUTWURST_4MAXP2)
+//Kehrt die Schrittrichtung um. Ändert den Motoranschluss (oder kehrt ihn um), wenn eine Achse in die falsche Richtung läuft.
+#define INVERT_X_DIR false // auf true setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#define INVERT_Y_DIR true // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#define INVERT_Z_DIR true // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+
+// @Abschnittsextruder
+
+// Für Direktantriebsextruder v9 auf „true“ setzen, für Getriebeextruder auf „false“.
+#wenn AKTIVIERT(KNUTWURST_BMG)
+#define INVERT_E0_DIR true // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#anders
+#define INVERT_E0_DIR false // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#endif
+#define INVERT_E1_DIR false // auf false setzen für Standardtreiber oder TMC2208 mit umgekehrten Anschlüssen
+#define INVERT_E2_DIR false
+#define INVERT_E3_DIR false
+#define INVERT_E4_DIR false
+#define INVERT_E5_DIR false
+#define INVERT_E6_DIR false
+#define INVERT_E7_DIR false
+#endif
+#endif // wenn AKTIVIERT(KNUTWURST_TMC)
+
+// @Abschnitt Homing
+
+//#define NO_MOTION_BEFORE_HOMING // Bewegung unterbinden, bis alle Achsen in die Ausgangsposition zurückversetzt wurden. Für zusätzliche Sicherheit auch HOME_AFTER_DEACTIVATE aktivieren.
+//#define HOME_AFTER_DEACTIVATE // Rehoming erforderlich, nachdem Stepper deaktiviert wurden. Aktivieren Sie für zusätzliche Sicherheit auch NO_MOTION_BEFORE_HOMING.
+
+/**
+* Legen Sie Z_IDLE_HEIGHT fest, wenn sich die Z-Achse von selbst bewegt, wenn die Schrittmotoren deaktiviert sind.
+* – Verwenden Sie einen niedrigen Wert (z. B. Z_MIN_POS), wenn die Düse auf das Bett fällt.
+* – Verwenden Sie einen großen Wert (z. B. Z_MAX_POS), wenn das Bett nach unten fällt, weg von der Düse.
+*/
+//#definieren Sie Z_IDLE_HEIGHT Z_HOME_POS
+
+//#define Z_HOMING_HEIGHT 4 // (mm) Minimale Z-Höhe vor dem Homing (G28) für den Z-Abstand über Bett, Klemmen, ...
+// Achten Sie darauf, diesen Abstand zu Ihrem Z_MAX_POS einzuhalten, um ein Schleifen zu verhindern.
+
+//#define Z_AFTER_HOMING 10 // (mm) Höhe, zu der nach dem Homing Z verfahren werden soll
+
+// Richtung der Endanschläge beim Homing; 1=MAX, -1=MIN
+// :[-1,1]
+#define X_HOME_DIR -1
+#define Y_HOME_DIR -1
+#define Z_HOME_DIR -1
+//#define I_HOME_DIR -1
+//#definiere J_HOME_DIR -1
+//#define K_HOME_DIR -1
+//#define U_HOME_DIR -1
+//#definiere V_HOME_DIR -1
+//#define W_HOME_DIR -1
+
+// @Abschnittsgeometrie
+
+// Die Größe des druckbaren Bereichs
+/*
+#wenn AKTIVIERT(KNUTWURST_MEGA)
+#define X_BED_SIZE 215
+#define Y_BED_SIZE 215
+#define Z_MAX_POS 206
+#endif
+*/
+
+#wenn AKTIVIERT(KNUTWURST_MEGA)
+#define X_MIN_POS 0
+#definiere Y_MIN_POS 0
+#define Z_MIN_POS 0
+#define X_BED_SIZE 215
+#define Y_BED_SIZE 215
+#define Z_MAX_POS 206
+#define X_MAX_POS X_BED_SIZE
+#definieren Sie Y_MAX_POS Y_BED_SIZE
+#endif
+
+#wenn ANY(KNUTWURST_MEGA_S, KNUTWURST_MEGA_P)
+#define X_MIN_POS 0
+#definiere Y_MIN_POS 0
+#define Z_MIN_POS 0
+#define X_BED_SIZE 225
+#define Y_BED_SIZE 220
+#define Z_MAX_POS 210
+#define X_MAX_POS X_BED_SIZE
+#definieren Sie Y_MAX_POS Y_BED_SIZE
+#endif
+
+#wenn AKTIVIERT(KNUTWURST_MEGA_X)
+#define X_MIN_POS 0
+#definiere Y_MIN_POS 0
+#define Z_MIN_POS 0
+#define X_BED_SIZE 310
+#define Y_BED_SIZE 310
+#define Z_MAX_POS 305
+#define X_MAX_POS X_BED_SIZE
+#definieren Sie Y_MAX_POS Y_BED_SIZE
+#endif
+
+#wenn AKTIVIERT(KNUTWURST_CHIRON)
+#define X_MIN_POS -10
+#definiere Y_MIN_POS 0
+#define Z_MIN_POS 0
+#define X_BED_SIZE 400
+#define Y_BED_SIZE 400
+#define Z_MAX_POS 455
+#define X_MAX_POS X_BED_SIZE + 10
+#define Y_MAX_POS Y_BED_SIZE + 10
+#endif
+
+#wenn AKTIVIERT(KNUTWURST_4MAXP2)
+#define X_MIN_POS -6
+#definiere Y_MIN_POS 0
+#define Z_MIN_POS 0
+#define X_BED_SIZE 270
+#define Y_BED_SIZE 210
+#define Z_MAX_POS 190
+#define X_MAX_POS X_BED_SIZE
+#definieren Sie Y_MAX_POS Y_BED_SIZE
+#endif
+
+// #define I_MIN_POS 0
+// #define I_MAX_POS 50
+// #definiere J_MIN_POS 0
+// #definiere J_MAX_POS 50
+// #definiere K_MIN_POS 0
+// #definiere K_MAX_POS 50
+// #define U_MIN_POS 0
+// #definiere U_MAX_POS 50
+// #definiere V_MIN_POS 0
+// #definiere V_MAX_POS 50
+// #definiere W_MIN_POS 0
+// #definiere W_MAX_POS 50
+
+/**
+* Software-Endanschläge
+*
+* - Verhindern Sie Bewegungen außerhalb der festgelegten Maschinengrenzen.
+* - Einzelne Achsen können auf Wunsch deaktiviert werden.
+* – X und Y gelten nur für kartesische Roboter.
+* - Verwenden Sie „M211“, um Software-Endanschläge ein-/auszuschalten oder den aktuellen Status zu melden
+*/
+
+// Minimale Software-Endanschläge beschränken die Bewegung auf minimale Koordinatengrenzen
+#define MIN_SOFTWARE_ENDSTOPS
+#wenn AKTIVIERT(MIN_SOFTWARE_ENDSTOPS)
+#define MIN_SOFTWARE_ENDSTOP_X
+#define MIN_SOFTWARE_ENDSTOP_Y
+#define MIN_SOFTWARE_ENDSTOP_Z
+#define MIN_SOFTWARE_ENDSTOP_I
+#define MIN_SOFTWARE_ENDSTOP_J
+#define MIN_SOFTWARE_ENDSTOP_K
+#define MIN_SOFTWARE_ENDSTOP_U
+#define MIN_SOFTWARE_ENDSTOP_V
+#define MIN_SOFTWARE_ENDSTOP_W
+#endif
+
+// Maximale Software-Endanschläge beschränken die Bewegung innerhalb der maximalen Koordinatengrenzen
+#define MAX_SOFTWARE_ENDSTOPS
+#wenn AKTIVIERT(MAX_SOFTWARE_ENDSTOPS)
+#define MAX_SOFTWARE_ENDSTOP_X
+#define MAX_SOFTWARE_ENDSTOP_Y
+#define MAX_SOFTWARE_ENDSTOP_Z
+#define MAX_SOFTWARE_ENDSTOP_I
+#define MAX_SOFTWARE_ENDSTOP_J
+#define MAX_SOFTWARE_ENDSTOP_K
+#define MAX_SOFTWARE_ENDSTOP_U
+#define MAX_SOFTWARE_ENDSTOP_V
+#define MAX_SOFTWARE_ENDSTOP_W
+#endif
+
+#wenn EITHER(MIN_SOFTWARE_ENDSTOPS, MAX_SOFTWARE_ENDSTOPS)
+//#define SOFT_ENDSTOPS_MENU_ITEM // Software-Endanschläge über das LCD aktivieren/deaktivieren
+#endif
+
+/**
+* @Abschnitt Filament-Runout-Sensoren
+*
+* Filament-Runout-Sensoren
+* Um das Vorhandensein von Filament zu überprüfen, werden mechanische oder optische Endanschläge verwendet.
+*
+* WICHTIG: Runout wird nur ausgelöst, wenn Marlin erkennt, dass ein Druckauftrag ausgeführt wird.
+* Marlin weiß, dass ein Druckauftrag ausgeführt wird, wenn:
+* 1. Ausführen eines Druckauftrags von einem mit M24 gestarteten Medium.
+* 2. Der Print Job Timer wurde mit M75 gestartet.
+* 3. Die Heizungen wurden eingeschaltet und PRINTJOB_TIMER_AUTOSTART ist aktiviert.
+*
+* RAMPS-basierte Karten verwenden SERVO3_PIN für den ersten Rundlaufsensor.
+* Für andere Karten müssen Sie möglicherweise FIL_RUNOUT_PIN, FIL_RUNOUT2_PIN usw. definieren.
+*/
+#define FILAMENT_RUNOUT_SENSOR
+#wenn AKTIVIERT(FILAMENT_RUNOUT_SENSOR)
+#define FIL_RUNOUT_ENABLED_DEFAULT true // Aktiviere den Sensor beim Start. Überschreibe mit M412, gefolgt von M500.
+#define NUM_RUNOUT_SENSORS 1 // Anzahl der Sensoren, bis zu einem pro Extruder. Definieren Sie für jeden einen FIL_RUNOUT#_PIN.
+
+#define FIL_RUNOUT_STATE HIGH // Pin-Status zeigt an, dass KEIN Filament vorhanden ist.
+#define FIL_RUNOUT_PULLUP // Internes Pullup für Filament-Runout-Pins verwenden.
+//#define FIL_RUNOUT_PULLDOWN // Internes Pulldown für Filament-Runout-Pins verwenden.
+//#define WATCH_ALL_RUNOUT_SENSORS // Runout-Skript für jeden auslösenden Sensor ausführen, nicht nur für den aktiven Extruder.
+// Dies wird für MIXING_EXTRUDERs automatisch aktiviert.
+
+// Individuell überschreiben, wenn die Rundlaufsensoren unterschiedlich sind
+//#definiere FIL_RUNOUT1_STATE LOW
+//#definiere FIL_RUNOUT1_PULLUP
+//#definiere FIL_RUNOUT1_PULLDOWN
+
+//#definiere FIL_RUNOUT2_STATE LOW
+//#definiere FIL_RUNOUT2_PULLUP
+//#definiere FIL_RUNOUT2_PULLDOWN
+
+//#definiere FIL_RUNOUT3_STATE LOW
+//#definiere FIL_RUNOUT3_PULLUP
+//#definiere FIL_RUNOUT3_PULLDOWN
+
+//#definiere FIL_RUNOUT4_STATE LOW
+//#definiere FIL_RUNOUT4_PULLUP
+//#definiere FIL_RUNOUT4_PULLDOWN
+
+//#definiere FIL_RUNOUT5_STATE LOW
+//#definiere FIL_RUNOUT5_PULLUP
+//#definiere FIL_RUNOUT5_PULLDOWN
+
+//#definiere FIL_RUNOUT6_STATE LOW
+//#definiere FIL_RUNOUT6_PULLUP
+//#definiere FIL_RUNOUT6_PULLDOWN
+
+//#definiere FIL_RUNOUT7_STATE LOW
+//#definiere FIL_RUNOUT7_PULLUP
+//#definiere FIL_RUNOUT7_PULLDOWN
+
+//#definiere FIL_RUNOUT8_STATE LOW
+//#definiere FIL_RUNOUT8_PULLUP
+//#definiere FIL_RUNOUT8_PULLDOWN
+
+// Befehle, die bei Filament-Auslauf ausgeführt werden sollen.
+// Bei mehreren Rundlaufsensoren verwenden Sie in Befehlen den Platzhalter %c für das aktuelle Werkzeug (z. B. „M600 T%c“)
+// HINWEIS: Nach „M412 H1“ kümmert sich der Host um den Filamentauslauf und dieses Skript ist nicht anwendbar.
+#define FILAMENT_RUNOUT_SCRIPT "M600"
+
+// Niedrigerer Schwellenwert, um falsch-positive Trigger zu verhindern (Standard: 5)
+#define FILAMENT_RUNOUT_THRESHOLD 20
+
+// Nachdem ein Auslauf erkannt wurde, drucke weiter diese Filamentlänge
+// bevor das Runout-Skript ausgeführt wird. Nützlich für einen Sensor am Ende
+// ein Zufuhrrohr. Erfordert 4 Byte SRAM pro Sensor plus 4 Byte Overhead.
+//#define FILAMENT_RUNOUT_DISTANCE_MM 25
+
+#ifdef FILAMENT_RUNOUT_DISTANCE_MM
+// Aktivieren Sie diese Option, um eine Encoderscheibe zu verwenden, die den Rundlaufstift umschaltet
+// während sich das Filament bewegt. (Stellen Sie sicher, dass Sie FILAMENT_RUNOUT_DISTANCE_MM festlegen.)
+// groß genug, um Fehlalarme zu vermeiden.)
+//#FILAMENT_MOTION_SENSOR definieren
+#endif
+#endif
+
+//=======================================================================
+//=============================== Bettnivellierung =============================
+//=======================================================================
+// @Abschnitt kalibrieren
+
+/**
+* Wählen Sie eine der folgenden Optionen, um G29 Bed Leveling zu aktivieren. Die Parameter
+* und das Verhalten von G29 ändert sich je nach Ihrer Auswahl.
+*
+* Wenn Sie eine Sonde für Z Homing verwenden, aktivieren Sie auch Z_SAFE_HOMING!
+*
+* - AUTO_BED_LEVELING_3POINT
+* Prüfen Sie 3 beliebige Punkte auf dem Bett (die nicht kollinear sind).
+* Sie geben die XY-Koordinaten aller 3 Punkte an.
+* Das Ergebnis ist eine einzelne geneigte Ebene. Am besten für ein Flachbett.
+*
+* - AUTO_BED_LEVELING_LINEAR
+* Untersuchen Sie mehrere Punkte in einem Raster.
+* Sie geben das Rechteck und die Dichte der Abtastpunkte an.
+* Das Ergebnis ist eine einzelne geneigte Ebene. Am besten für ein Flachbett.
+*
+* - AUTO_BED_LEVELING_BILINEAR
+* Untersuchen Sie mehrere Punkte in einem Raster.
+* Sie geben das Rechteck und die Dichte der Abtastpunkte an.
+* Das Ergebnis ist ein Netz, das sich am besten für große oder unebene Beete eignet.
+*
+* - AUTO_BED_LEVELING_UBL (Einheitliche Bettnivellierung)
+* Ein umfassendes Bettnivellierungssystem, das die Funktionen und Vorteile kombiniert
+* anderer Systeme. UBL beinhaltet auch integrierte Mesh Generation, Mesh
+* Validierungs- und Mesh-Bearbeitungssysteme.
+*
+* - MESH_BED_LEVELING
+* Ein Raster manuell prüfen
+* Das Ergebnis ist ein Netz, das für große oder unebene Betten geeignet ist. (Siehe BILINEAR.)
+* Für Maschinen ohne Sonde bietet Mesh Bed Leveling eine Methode zur Durchführung
+* Nivellierung in Schritten, sodass Sie die Z-Höhe an jedem Rasterpunkt manuell anpassen können.
+* Mit einem LCD-Controller wird der Vorgang Schritt für Schritt geführt.
+*/
+#wenn EITHER(KNUTWURST_BLTOUCH, KNUTWURST_CHIRON)
+// #define AUTO_BED_LEVELING_3POINT
+// #define AUTO_BED_LEVELING_LINEAR
+#define AUTO_BED_LEVELING_BILINEAR
+// #define AUTO_BED_LEVELING_UBL
+// #MESH_BED_LEVELING definieren
+#endif
+
+#wenn NONE(KNUTWURST_BLTOUCH, KNUTWURST_CHIRON)
+// #define AUTO_BED_LEVELING_3POINT
+// #define AUTO_BED_LEVELING_LINEAR
+// #define AUTO_BED_LEVELING_BILINEAR
+// #define AUTO_BED_LEVELING_UBL
+#MESH_BED_LEVELING definieren
+#endif
+
+/**
+* Am Ende der G29-Prüfung auszuführende Befehle.
+* Nützlich, um die Z-Sonde zurückzuziehen oder aus dem Weg zu räumen.
+*/
+//#define Z_PROBE_END_SCRIPT "G1 Z10 F12000\nG1 X15 Y330\nG1 Z0.5\nG1 Z10"
+
+/**
+* Normalerweise lässt G28 die Nivellierung nach Abschluss deaktiviert. Aktivieren Sie eine der
+* diese Optionen zum Wiederherstellen des vorherigen Nivellierungszustands oder zum immer Aktivieren
+* Nivellierung unmittelbar nach G28.
+*/
+#define RESTORE_LEVELING_AFTER_G28
+//#definieren Sie ENABLE_LEVELING_AFTER_G28
+
+/**
+* Auto-Leveling erfordert Vorwärmen
+*/
+//#definieren Sie PREHEAT_BEFORE_LEVELING
+#wenn AKTIVIERT(VORHEIZUNG_VOR_NIVEAU)
+#define LEVELING_NOZZLE_TEMP 120 // (°C) Gilt derzeit nur für E0
+#define LEVELING_BED_TEMP 50
+#endif
+
+/**
+* Bett-Abstandssensor
+*
+* Misst den Abstand vom Bett zur Düse mit einer Genauigkeit von 0,01 mm.
+* Informationen zu diesem Sensor finden Sie unter https://github.com/markniu/Bed_Distance_sensor
+* Verwendet den I2C-Port, daher ist die I2C-Bibliothek markyue/Panda_SoftMasterI2C erforderlich.
+*/
+//#BD_SENSOR definieren
+
+/**
+* Aktivieren Sie die detaillierte Protokollierung von G28, G29, M48 usw.
+* Einschalten mit dem Befehl ,M111 S32‘.
+* HINWEIS: Erfordert viel Flash!
+*/
+#wenn AKTIVIERT(KNUTWURST_DEBUG)
+#DEBUG_LEVELING_FEATURE definieren
+#endif
+
+#wenn ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_UBL, PROBE_MANUALLY)
+// Eine Höhe für den Beginn der manuellen Anpassung festlegen
+#define MANUAL_PROBE_START_Z 0.2 // (mm) Auskommentieren, um die zuletzt gemessene Höhe zu verwenden
+#endif
+
+#wenn ANY(MESH_BED_LEVELING, AUTO_BED_LEVELING_BILINEAR, AUTO_BED_LEVELING_UBL)
+/**
+* Reduzieren Sie die Nivellierungskorrektur schrittweise, bis eine festgelegte Höhe erreicht ist.
+* Ab diesem Punkt erfolgt die Bewegung auf gleicher Höhe mit der XY-Ebene der Maschine.
+* Die Höhe kann mit M420 Z<height> eingestellt werden
+*/
+#define ENABLE_LEVELING_FADE_HEIGHT
+#wenn AKTIVIERT(ENABLE_LEVELING_FADE_HEIGHT)
+#define DEFAULT_LEVELING_FADE_HEIGHT 0,0 // (mm) Standard-Überblendungshöhe.
+#endif
+
+/**
+* Bei kartesischen Maschinen werden die Bewegungen nicht auf die Maschengrenzen aufgeteilt,
+* Bewegungen in kurze Segmente aufteilen, wie ein Delta. Dies folgt dem
+* Konturen des Bettes genauer als gerade Bewegungen von Kante zu Kante.
+*/
+#SEGMENT_LEVELED_MOVES definieren
+#define LEVELED_SEGMENT_LENGTH 5.0 // (mm) Länge aller Segmente (außer dem letzten)
+
+/**
+* Aktivieren Sie das G26 Mesh Validation Pattern-Tool.
+*/
+#define G26_MESH_VALIDATION
+#wenn AKTIVIERT(G26_MESH_VALIDATION)
+#define MESH_TEST_NOZZLE_SIZE 0,4 // (mm) Durchmesser der Primärdüse.
+#define MESH_TEST_LAYER_HEIGHT 0,2 // (mm) Standard-Schichthöhe für G26.
+#define MESH_TEST_HOTEND_TEMP 200 // (°C) Standarddüsentemperatur für G26.
+#define MESH_TEST_BED_TEMP 60 // (°C) Standardbetttemperatur für G26.
+#define G26_XY_FEEDRATE 20 // (mm/s) Vorschub für G26 XY-Bewegungen.
+#define G26_XY_FEEDRATE_TRAVEL 100 // (mm/s) Vorschub für G26 XY-Verfahrbewegungen.
+#define G26_RETRACT_MULTIPLIER 1.0 // G26 Q (Rückzug) wird standardmäßig zwischen Mesh-Testelementen verwendet.
+#endif
+
+#endif
+
+#wenn EITHER(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)
+
+// Legen Sie die Anzahl der Gitterpunkte pro Dimension fest.
+#definiere GRID_MAX_POINTS_X 5
+#define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
+
+//Sondieren Sie entlang der Y-Achse und bewegen Sie X nach jeder Spalte nach vorne.
+//#definiere PROBE_Y_FIRST
+
+#wenn AKTIVIERT(AUTO_BED_LEVELING_BILINEAR)
+
+// Über das untersuchte Gitter hinaus die implizite Neigung fortsetzen?
+// Standardmäßig wird die Höhe der nächsten Kante beibehalten.
+//#definiere EXTRAPOLATE_BEYOND_GRID
+
+//
+// Unterteilung des Gitters mit der Catmull-Rom-Methode.
+// Synthetisiert Zwischenpunkte, um ein detaillierteres Netz zu erzeugen.
+//
+//#definieren Sie ABL_BILINEAR_SUBDIVISION
+#wenn AKTIVIERT(ABL_BILINEAR_SUBDIVISION)
+// Anzahl der Unterteilungen zwischen den Prüfpunkten
+#define BILINEAR_SUBDIVISIONS 3
+#endif
+
+#endif
+
+#elif AKTIVIERT(AUTO_BED_LEVELING_UBL)
+
+//=======================================================================
+//========================= Einheitliche Bettnivellierung ===========================
+//=======================================================================
+
+//#define MESH_EDIT_GFX_OVERLAY // Zeigt beim Bearbeiten des Meshs ein Grafik-Overlay an
+
+#define MESH_INSET 1 // Mesh-Grenzen als Inset-Bereich des Bettes festlegen
+#define GRID_MAX_POINTS_X 10 // Verwenden Sie nicht mehr als 15 Punkte pro Achse, Implementierung begrenzt.
+#define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
+
+//#define UBL_HILBERT_CURVE // Hilbert-Verteilung für weniger Weg beim Prüfen mehrerer Punkte verwenden
+
+#define UBL_MESH_EDIT_MOVES_Z // Erfahrene Benutzer bevorzugen keine Bewegung der Düse
+#define UBL_SAVE_ACTIVE_ON_M500 // Speichert das aktuell aktive Mesh im aktuellen Slot auf M500
+
+//#define UBL_Z_RAISE_WHEN_OFF_MESH 2.5 // Wenn die Düse nicht im Mesh ist, wird dieser Wert verwendet
+// als Z-Höhenkorrekturwert.
+
+//#define UBL_MESH_WIZARD // Führen Sie mehrere Befehle hintereinander aus, um ein vollständiges Mesh zu erhalten
+
+#elif AKTIVIERT(MESH_BED_LEVELING)
+
+//=======================================================================
+//===================================== Mesh ==================================
+//=======================================================================
+
+#wenn AKTIVIERT(KNUTWURST_CHIRON)
+#define MESH_INSET 10 // Mesh-Grenzen als Inset-Bereich des Bettes festlegen
+#define GRID_MAX_POINTS_X 3 // Verwenden Sie nicht mehr als 7 Punkte pro Achse, Implementierung begrenzt.
+#define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
+#anders
+#define MESH_INSET 10 // Mesh-Grenzen als Inset-Bereich des Bettes festlegen
+#define GRID_MAX_POINTS_X 5 // Verwenden Sie nicht mehr als 7 Punkte pro Achse, Implementierung begrenzt.
+#define GRID_MAX_POINTS_Y GRID_MAX_POINTS_X
+#endif
+
+//#define MESH_G28_REST_ORIGIN // Nach dem Homing aller Achsen ('G28' oder 'G28 XYZ') Z an Z_MIN_POS anhalten
+
+#endif // Bettnivellierung
+
+/**
+* Fügen Sie ein Untermenü zur Bettnivellierung für ABL oder MBL hinzu.
+* Fügen Sie ein geführtes Verfahren hinzu, wenn die manuelle Prüfung aktiviert ist.
+*/
+//#LCD_BED_LEVELING definieren
+
+#wenn AKTIVIERT(LCD_BED_LEVELING)
+#define MESH_EDIT_Z_STEP 0,025 // (mm) Schrittgröße beim manuellen Prüfen der Z-Achse.
+#define LCD_PROBE_Z_RANGE 4 // (mm) Z-Bereich zentriert auf Z_MIN_POS für LCD-Z-Anpassung
+//#define MESH_EDIT_MENU // Füge ein Menü zum Bearbeiten von Mesh-Punkten hinzu
+#endif
+
+// Fügen Sie ein Menüelement hinzu, um zwischen den Bettecken zu wechseln und das Bett manuell anzupassen
+//#LCD_BED_TRAMMING definieren
+
+#wenn AKTIVIERT(LCD_BED_TRAMMING)
+#define BED_TRAMMING_INSET_LFRB { 30, 30, 30, 30 } // (mm) Links, vorne, rechts, hinten Einschübe
+#define BED_TRAMMING_HEIGHT 0.0 // (mm) Z-Höhe der Düse an den Tramming-Punkten
+#define BED_TRAMMING_Z_HOP 4.0 // (mm) Z-Anhebung zwischen Tramming-Punkten
+//#define BED_TRAMMING_INCLUDE_CENTER // Nach der letzten Ecke in die Mitte verschieben
+//#definiere BED_TRAMMING_USE_PROBE
+#wenn AKTIVIERT(BED_TRAMMING_USE_PROBE)
+#define BED_TRAMMING_PROBE_TOLERANCE 0,1 // (mm)
+#define BED_TRAMMING_VERIFY_RAISED // Nach der Anpassung wird die Sonde ausgelöst. Führen Sie zur Überprüfung eine erneute Sondenprüfung durch.
+//#definiere BED_TRAMMING_AUDIO_FEEDBACK
+#endif
+
+/**
+* Eckennivellierungsreihenfolge
+*
+* Setzen Sie 2 oder 4 Punkte. Wenn 2 Punkte vergeben werden, ist der 3. die Mitte der gegenüberliegenden Kante.
+*
+* LF links-vorne RF rechts-vorne
+* LB Linksverteidiger RB Rechtsverteidiger
+*
+* Beispiele:
+*
+* Standard {LF,RB,LB,RF} {LF,RF} {LB,LF}
+* LB --------- RB LB --------- RB LB --------- RB LB --------- RB
+* | 4 3 | | 3 2 | | <3> | | 1 |
+* | | | | | | | | <3>|
+* | 1 2 | | 1 4 | | 1 2 | | 2 |
+* LF --------- RF LF --------- RF LF --------- RF LF --------- RF
+*/
+#define BED_TRAMMING_LEVELING_ORDER { LF, RF, RB, LB }
+#endif
+
+// @Abschnitt Homing
+
+// Die Mitte des Bettes liegt bei (X=0, Y=0)
+//#definiere BED_CENTER_AT_0_0
+
+// Die Ausgangsposition manuell festlegen. Lassen Sie diese für automatische Einstellungen undefiniert.
+// Für DELTA ist dies die obere Mitte des kartesischen Druckvolumens.
+//#definiere MANUAL_X_HOME_POS 0
+//#definiere MANUAL_Y_HOME_POS 0
+//#definieren MANUAL_Z_HOME_POS 0
+//#definiere MANUAL_I_HOME_POS 0
+//#definiere MANUAL_J_HOME_POS 0
+//#definiere MANUAL_K_HOME_POS 0
+//#definiere MANUAL_U_HOME_POS 0
+//#definiere MANUAL_V_HOME_POS 0
+//#definiere MANUAL_W_HOME_POS 0
+
+/**
+* Verwenden Sie „Z Safe Homing“, um ein Homing mit einer Z-Sonde außerhalb des Bettbereichs zu vermeiden.
+*
+* – Bewegt die Z-Sonde (oder Düse) vor dem Z-Homing zu einem definierten XY-Punkt.
+* – Ermöglicht Z-Homing nur, wenn die XY-Positionen bekannt und vertrauenswürdig sind.
+* – Wenn die Schrittmotortreiber schlafen, ist möglicherweise vor dem Z-Homing erneut ein XY-Homing erforderlich.
+*/
+#wenn BEIDE(KNUTWURST_BLTOUCH, KNUTWURST_4MAXP2)
+#define Z_SAFE_HOMING
+#endif
+
+
+#wenn AKTIVIERT(Z_SAFE_HOMING)
+#define Z_SAFE_HOMING_X_POINT X_CENTER // (mm) X-Punkt für Z-Homing
+#define Z_SAFE_HOMING_Y_POINT Y_CENTER // (mm) Y-Punkt für Z-Homing
+#endif
+
+// Homing-Geschwindigkeiten (linear=mm/min, rotierend=°/min)
+#wenn ANY(KNUTWURST_MEGA, KNUTWURST_MEGA_S, KNUTWURST_MEGA_P)
+#define HOMING_FEEDRATE_MM_M { (50 * 60), (50 * 60), (4 * 60) }
+#elif AKTIVIERT(KNUTWURST_MEGA_X)
+#define HOMING_FEEDRATE_MM_M { (40 * 60), (40 * 60), (6 * 60) }
+#elif AKTIVIERT(KNUTWURST_CHIRON)
+#define HOMING_FEEDRATE_MM_M { (30 * 60), (30 * 60), (6 * 60) }
+#elif AKTIVIERT(KNUTWURST_4MAXP2)
+#define HOMING_FEEDRATE_MM_M { (40 * 60), (40 * 60), (4 * 60) }
+#endif
+
+
+// Überprüfen Sie, ob Endanschläge bei Homing-Bewegungen ausgelöst werden.
+#define VALIDATE_HOMING_ENDSTOPS
+
+// @Abschnitt kalibrieren
+
+/**
+* Kompensation der Bettschräglage
+*
+* Diese Funktion korrigiert Fehlausrichtungen der XYZ-Achsen.
+*
+* Führen Sie die folgenden Schritte aus, um die Bettschräge in der XY-Ebene zu ermitteln:
+* 1. Drucken Sie ein Testquadrat (z. B. https://www.thingiverse.com/thing:2563185)
+* 2. Für XY_DIAG_AC messen Sie die Diagonale A bis C
+* 3. Für XY_DIAG_BD messen Sie die Diagonale B bis D
+* 4. Für XY_SIDE_AD messen Sie die Kante A bis D
+*
+* Marlin berechnet aus diesen Messungen automatisch Schiefefaktoren.
+* Schiefefaktoren können auch manuell berechnet und eingestellt werden:
+*
+* - Berechnen Sie AB: SQRT(2*AC*AC+2*BD*BD-4*AD*AD)/2
+* - XY_SKEW_FACTOR: TAN(PI/2-ACOS((AC*AC-AB*AB-AD*AD)/(2*AB*AD)))
+*
+* Falls gewünscht, befolgen Sie dasselbe Verfahren für XZ und YZ.
+* Verwenden Sie diese Diagramme als Referenz:
+*
+* YZZ
+* ^ B-------C ^ B-------C ^ B-------C
+* | / / | / / | / /
+* | / / | / / | / /
+* | A-------D | A-------D | A-------D
+* +-------------->X +-------------->X +-------------->Y
+* XY_SKEW_FACTOR XZ_SKEW_FACTOR YZ_SKEW_FACTOR
+*/
+//#SKEW_CORRECTION definieren
+
+#wenn AKTIVIERT(SKEW_CORRECTION)
+// Alle Längenmaße hier eingeben:
+#define XY_DIAG_AC 282.8427124746
+#define XY_DIAG_BD 282.8427124746
+#define XY_SIDE_AD 200
+
+// Oder stellen Sie den XY-Schiefefaktor direkt ein:
+//#definiere XY_SKEW_FACTOR 0.0
+
+//#SKEW_CORRECTION_FOR_Z definieren
+#wenn AKTIVIERT(SKEW_CORRECTION_FOR_Z)
+#define XZ_DIAG_AC 282.8427124746
+#define XZ_DIAG_BD 282.8427124746
+#define YZ_DIAG_AC 282.8427124746
+#define YZ_DIAG_BD 282.8427124746
+#define YZ_SIDE_AD 200
+
+// Oder legen Sie die Z-Schieflagefaktoren direkt fest:
+//#definieren Sie XZ_SKEW_FACTOR 0.0
+//#definiere YZ_SKEW_FACTOR 0.0
+#endif
+
+// Aktivieren Sie diese Option für M852, um den Skew zur Laufzeit einzustellen
+//#SKEW_CORRECTION_GCODE definieren
+#endif
+
+//========================================================================
+//============================= Zusätzliche Funktionen ===========================
+//=========================================================================
+
+// @Abschnitt EEPROM
+
+/**
+* EEPROM
+*
+* Dauerhafter Speicher, um konfigurierbare Einstellungen auch nach einem Neustart beizubehalten.
+*
+* M500 – Einstellungen im EEPROM speichern.
+* M501 - Einstellungen aus dem EEPROM lesen. (d. h. nicht gespeicherte Änderungen verwerfen)
+* M502 – Einstellungen auf Werkseinstellungen zurücksetzen. (Führen Sie anschließend M500 aus, um das EEPROM zu initialisieren.)
+*/
+#define EEPROM_SETTINGS // Persistenter Speicher mit M500 und M501
+//#define DISABLE_M503 // Spart ~2700 Byte Flash. Für die Veröffentlichung deaktivieren!
+#define EEPROM_CHITCHAT // Feedback zu EEPROM-Befehlen geben. Deaktivieren, um Flash zu speichern.
+//#define EEPROM_BOOT_SILENT // M503 ruhig halten und nur beim ersten Laden Fehler ausgeben
+#wenn AKTIVIERT(EEPROM_SETTINGS)
+#define EEPROM_AUTO_INIT // EEPROM bei Fehlern automatisch initialisieren.
+//#define EEPROM_INIT_NOW // EEPROM beim ersten Booten nach einem neuen Build initialisieren.
+#endif
+
+// @Abschnitt Host
+
+//
+// Host-Keepalive
+//
+// Wenn aktiviert, sendet Marlin eine Besetzt-Statusmeldung an den Host
+// alle paar Sekunden, wenn es keine Befehle annehmen kann.
+//
+#define HOST_KEEPALIVE_FEATURE // Deaktivieren Sie dies, wenn Ihr Host keine Keepalive-Nachrichten mag
+#define DEFAULT_KEEPALIVE_INTERVAL 5 // Anzahl der Sekunden zwischen „Besetzt“-Meldungen. Mit M113 festlegen.
+#define BUSY_WHILE_HEATING // Manche Hosts benötigen auch während des Heizens „Busy“-Meldungen
+
+// @Abschnittseinheiten
+
+//
+// G20/G21 Zoll-Modus-Unterstützung
+//
+//#INCH_MODE_SUPPORT definieren
+
+//
+// M149 Unterstützung für eingestellte Temperatureinheiten
+//
+//#TEMPERATURE_UNITS_SUPPORT definieren
+
+// @Abschnittstemperatur
+
+//
+// Vorheizkonstanten - Bis zu 10 werden ohne Änderungen unterstützt
+//
+#define PREHEAT_1_LABEL "PLA"
+#define PREHEAT_1_TEMP_HOTEND 200
+#define PREHEAT_1_TEMP_BED 60
+//#definieren Sie PREHEAT_1_TEMP_CHAMBER 35
+#define PREHEAT_1_FAN_SPEED 0 // Wert von 0 bis 255
+
+#define PREHEAT_2_LABEL "ABS"
+#define PREHEAT_2_TEMP_HOTEND 240
+#define VORHEIZEN_2_TEMP_BED 90
+//#definieren Sie PREHEAT_2_TEMP_CHAMBER 35
+#define PREHEAT_2_FAN_SPEED 0 // Wert von 0 bis 255
+
+/**
+* @Abschnitt Düsenpark
+*
+* Düsenpark
+*
+* Parken Sie die Düse im Leerlauf oder G27 an der angegebenen XYZ-Position.
+*
+* Der Parameter „P“ steuert die auf die Z-Achse angewendete Aktion:
+*
+* P0 (Standard) Wenn Z unter Park-Z liegt, heben Sie die Düse an.
+* P1 Heben Sie die Düse immer auf die Z-Parkhöhe an.
+* P2 Heben Sie die Düse um den Z-Parkbetrag an, begrenzt auf Z_MAX_POS.
+*/
+#NOZZLE_PARK_FEATURE definieren
+
+#wenn AKTIVIERT(NOZZLE_PARK_FEATURE)
+// Eine Parkposition als { X, Y, Z_raise } angeben
+#define NOZZLE_PARK_POINT { (X_MIN_POS + 10), (Y_MAX_POS - 10), 20 }
+#define NOZZLE_PARK_MOVE 0 // Parkbewegung: 0 = XY-Bewegung, 1 = Nur X, 2 = Nur Y, 3 = X vor Y, 4 = Y vor X
+#define NOZZLE_PARK_Z_RAISE_MIN 2 // (mm) Z immer um mindestens diese Distanz anheben
+#define NOZZLE_PARK_XY_FEEDRATE 100 // (mm/s) Vorschubgeschwindigkeit der X- und Y-Achse (wird auch für die Delta-Z-Achse verwendet)
+#define NOZZLE_PARK_Z_FEEDRATE 5 // (mm/s) Vorschubgeschwindigkeit der Z-Achse (wird für Deltadrucker nicht verwendet)
+#endif
+
+/**
+* @Abschnitt Düse reinigen
+*
+* Funktion „Düse reinigen“
+*
+* Fügt den Befehl G12 hinzu, um einen Düsenreinigungsvorgang durchzuführen.
+*
+* Parameter:
+* P-Muster
+* S Schläge / Wiederholungen
+* T-Dreiecke (nur P1)
+*
+* Muster:
+* P0 Gerade Linie (Standard). Dieser Prozess erfordert ein schwammartiges Material
+* an einer festen Bettposition. „S“ gibt Hübe an (d. h. Hin- und Herbewegungen)
+* zwischen den Start-/Endpunkten.
+*
+* P1 Zickzack-Muster zwischen (X0, Y0) und (X1, Y1), "T" gibt die
+* Anzahl der zu machenden Zickzack-Dreiecke. „S“ definiert die Anzahl der Striche.
+* Zickzack-Stiche werden in der schmaleren Dimension ausgeführt.
+* Beispielsweise führt „G12 P1 S1 T3“ Folgendes aus:
+*
+* --
+* | (X0, Y1) | /\ /\ /\ | (X1, Y1)
+* | | / \ / \ / \ |
+* EIN | | / \ / \ / \ |
+* | | / \ / \ / \ |
+* | (X0, Y0) | / \/ \/ \ | (X1, Y0)
+* -- +--------------------------------+
+* |________|_________|_________|
+* T1 T2 T3
+*
+* P2 Kreisförmiges Muster mit Mitte bei NOZZLE_CLEAN_CIRCLE_MIDDLE.
+* „R“ gibt den Radius an. „S“ gibt die Strichzahl an.
+* Vor dem Start bewegt sich die Düse zum NOZZLE_CLEAN_START_POINT.
+*
+* Vorbehalt: Das End-Z sollte mit dem Anfangs-Z identisch sein.
+*/
+//#NOZZLE_CLEAN_FEATURE definieren
+
+#wenn AKTIVIERT(DÜSENREINIGUNGSFUNKTION)
+// Standardanzahl der Musterwiederholungen
+#define NOZZLE_CLEAN_STROKES 12
+
+// Standardanzahl an Dreiecken
+#define NOZZLE_CLEAN_TRIANGLES 3
+
+// Positionen für jedes Werkzeug als { { X, Y, Z }, { X, Y, Z } } angeben
+// Duales Hotend-System kann { { -20, (Y_BED_SIZE / 2), (Z_MIN_POS + 1) }, { 420, (Y_BED_SIZE / 2), (Z_MIN_POS + 1) }} verwenden.
+#define NOZZLE_CLEAN_START_POINT { { 30, 30, (Z_MIN_POS + 1) } }
+#define NOZZLE_CLEAN_END_POINT { { 100, 60, (Z_MIN_POS + 1) } }
+
+// Radius des kreisförmigen Musters
+#define NOZZLE_CLEAN_CIRCLE_RADIUS 6.5
+// Kreisförmiges Muster Kreisfragmente Anzahl
+#define NOZZLE_CLEAN_CIRCLE_FN 10
+// Mittelpunkt des Kreises
+#define NOZZLE_CLEAN_CIRCLE_MIDDLE NOZZLE_CLEAN_START_POINT
+
+// Nach der Reinigung die Düse wieder in die Ausgangsposition bringen
+#define NOZZLE_CLEAN_GOBACK
+
+// Für eine Spül-/Reinigungsstation, die sich immer auf Portalhöhe befindet (also keine Z-Bewegung)
+//#definiere NOZZLE_CLEAN_NO_Z
+
+// Für eine auf der X-Achse montierte Spül-/Reinigungsstation
+//#definiere NOZZLE_CLEAN_NO_Y
+
+// Erfordert eine Mindesttemperatur des Hotends zum Reinigen
+#define NOZZLE_CLEAN_MIN_TEMP 170
+//#define NOZZLE_CLEAN_HEATUP // Düse aufheizen, statt Wischen zu überspringen
+
+// Das explizite Lösch-G-Code-Skript wird auf einen G12 ohne Argumente angewendet.
+//#define WIPE_SEQUENCE_COMMANDS "G1 X-17 Y25 Z10 F4000\nG1 Z1\nM114\nG1 X-17 Y25\nG1 X-17 Y95\nG1 X-17 Y25\nG1 X-17 Y95\nG1 X-17 Y25\nG1 X-17 Y95\nG1 X-17 Y25\nG1 X-17 Y95\nG1 X-17 Y25\nG1 X-17 Y95\nG1 X-17 Y25\nG1 X-17 Y95\nG1 X-17 Y25\nG1 X-17 Y95\nG1 Z15\nM400\nG0 X-10.0 Y-9.0"
+
+#endif
+
+// @Abschnitt Host
+
+/**
+* Druckauftrags-Timer
+*
+* Automatisches Starten und Stoppen des Druckauftrags-Timers auf M104/M109/M140/M190/M141/M191.
+* Der Druckauftragstimer wird nur gestoppt, wenn die Zieltemperatur des Betts/der Kammer
+* unter BED_MINTEMP/CHAMBER_MINTEMP.
+*
+* M104 (Hotend, keine Wartezeit) – hohe Temperatur = keine, niedrige Temperatur = Timer stoppen
+* M109 (Hotend, warten) – hohe Temperatur = Timer starten, niedrige Temperatur = Timer stoppen
+* M140 (Bett, keine Wartezeit) – hohe Temperatur = keine, niedrige Temperatur = Timer stoppen
+* M190 (Bett, Warten) - hohe Temperatur = Timer starten, niedrige Temperatur = keine
+* M141 (Kammer, keine Wartezeit) – hohe Temperatur = keine, niedrige Temperatur = Zeitgeber stoppen
+* M191 (Kammer, warten) - hohe Temperatur = Timer starten, niedrige Temperatur = keine
+*
+* Für M104/M109 ist alles über EXTRUDE_MINTEMP / 2 eine hohe Temperatur.
+* Für M140/M190 ist alles über BED_MINTEMP eine hohe Temperatur.
+* Für M141/M191 ist alles über CHAMBER_MINTEMP eine hohe Temperatur.
+*
+* Der Timer kann auch mit den folgenden Befehlen gesteuert werden:
+*
+* M75 - Starten Sie den Druckauftragstimer
+* M76 - Den Druckauftragstimer anhalten
+* M77 - Stoppen Sie den Druckauftragstimer
+*/
+#define PRINTJOB_TIMER_AUTOSTART
+
+// @Abschnitt Statistiken
+
+/**
+* Zähler drucken
+*
+* Verfolgen Sie statistische Daten wie:
+*
+* - Gesamtzahl der Druckaufträge
+* - Gesamtzahl erfolgreicher Druckaufträge
+* - Gesamtzahl fehlgeschlagener Druckaufträge
+* - Gesamtzeit Drucken
+*
+* Sehen Sie sich die aktuellen Statistiken mit M78 an.
+*/
+#Druckzähler definieren
+#wenn AKTIVIERT(DRUCKZÄHLER)
+#define PRINTCOUNTER_SAVE_INTERVAL 60 // (Minuten) EEPROM-Speicherintervall während des Druckens. Ein Wert von 0 speichert die Statistiken am Ende des Druckens.
+#endif
+
+// @Abschnitt Sicherheit
+
+/**
+* Passwort
+*
+* Legen Sie für den Drucker ein numerisches Passwort fest, welches abgefragt werden kann:
+*
+* - Wenn der Drucker hochfährt
+* - Beim Öffnen des Menüs „Von Medium drucken“
+* - Wenn der SD-Druck abgeschlossen oder abgebrochen ist
+*
+* Folgende G-Codes können verwendet werden:
+*
+* M510 - Drucker sperren. Blockiert alle Befehle außer M511.
+* M511 – Drucker entsperren.
+* M512 – Passwort festlegen, ändern und entfernen.
+*
+* Wenn Sie das Passwort vergessen und sich ausgesperrt haben, müssen Sie erneut flashen
+* die Firmware mit deaktivierter Funktion, EEPROM zurücksetzen und (optional)
+* Flashen Sie die Firmware mit aktivierter Funktion erneut.
+*/
+//#Passwortfunktion definieren
+#wenn AKTIVIERT(PASSWORTFUNKTION)
+#define PASSWORD_LENGTH 4 // (#) Anzahl der Ziffern (1-9). 3 oder 4 werden empfohlen
+#define PASSWORD_ON_STARTUP
+#define PASSWORD_UNLOCK_GCODE // Entsperren mit dem Befehl M511 P<Passwort>. Deaktivieren, um Brute-Force-Angriffe zu verhindern.
+#define PASSWORD_CHANGE_GCODE // Ändern Sie das Passwort mit M512 P<alt> S<neu>.
+//#define PASSWORD_ON_SD_PRINT_MENU // Dies verhindert nicht die Ausführung von G-Codes
+//#Passwort_nach_SD_Print_Ende definieren
+//#Passwort_nach_SD_Print_Abort definieren
+//#include "Configuration_Secure.h" // Externe Datei mit PASSWORD_DEFAULT_VALUE
+#endif
+
+//=========================================================================
+//============================= LCD- und SD-Unterstützung ============================
+//=========================================================================
+
+// @section-Schnittstelle
+
+/**
+* LCD-SPRACHE
+*
+* Wählen Sie die Sprache für die Anzeige auf dem LCD. Folgende Sprachen sind verfügbar:
+*
+* en, an, bg, ca, cz, da, de, el, el_CY, es, eu, fi, fr, gl, hr, hu, it,
+* jp_kana, ko_KR, nl, pl, pt, pt_br, ro, ru, sk, sv, tr, uk, vi, zh_CN, zh_TW
+*
+* :{ 'en':'Englisch', 'an':'Aragonesisch', 'bg':'Bulgarisch', 'ca':'Katalanisch', 'cz':'Tschechisch', 'da':'Dänisch', 'de':'Deutsch', 'el':'Griechisch (Griechenland)', 'el_CY':'Griechisch (Zypern)', 'es':'Spanisch', 'eu':'Baskisch-Euskera', 'fi':'Finnisch', 'fr':'Französisch', 'gl':'Galizisch', 'hr':'Kroatisch', 'hu':'Ungarisch', 'it':'Italienisch', 'jp_kana':'Japanisch', 'ko_KR':'Koreanisch (Südkorea)', 'nl':'Niederländisch', 'pl':'Polnisch', 'pt':'Portugiesisch', 'pt_br':'Portugiesisch (Brasilianisch)', 'ro':'Rumänisch', 'ru':'Russisch', 'sk':'Slowakisch', 'sv':'Schwedisch', 'tr':'Türkisch', 'uk':'Ukrainisch', 'vi':'Vietnamesisch', 'zh_CN':'Chinesisch (vereinfacht)', 'zh_TW':'Chinesisch (traditionell)' }
+*/
+#define LCD_LANGUAGE de
+
+/**
+* LCD-Zeichensatz
+*
+* Hinweis: Diese Option ist NICHT auf grafische Anzeigen anwendbar.
+*
+* Alle zeichenbasierten LCDs bieten ASCII plus eine dieser
+* Spracherweiterungen:
+*
+* - JAPANISCH ... das häufigste
+* - WESTERN ... mit mehr Akzenten
+* - KYRILLISCH ... für die russische Sprache
+*
+* So ermitteln Sie die auf Ihrem Controller installierte Spracherweiterung:
+*
+* - Kompilieren und Hochladen mit LCD_LANGUAGE auf „Test“ eingestellt
+* - Klicken Sie auf den Controller, um das LCD-Menü anzuzeigen
+* - Das LCD zeigt japanischen, westlichen oder kyrillischen Text an
+*
+* Siehe https://marlinfw.org/docs/development/lcd_language.html
+*
+* :['JAPANISCH', 'WESTLICH', 'KYRILLISCH']
+*/
+#define DISPLAY_CHARSET_HD44780 JAPANISCH
+
+/**
+* Info-Bildschirmstil (0:Klassisch, 1:Průša)
+*
+* :[0:'Klassisch', 1:'Průša']
+*/
+#define LCD_INFO_SCREEN_STYLE 0
+
+/**
+* SD-KARTE
+*
+* Die SD-Kartenunterstützung ist standardmäßig deaktiviert. Wenn Ihr Controller einen SD-Steckplatz hat,
+* Sie müssen die folgende Option auskommentieren, sonst funktioniert sie nicht.
+*/
+#SDSUPPORT definieren
+
+/**
+* SD-KARTE: CRC AKTIVIEREN
+*
+* Verwenden Sie CRC-Prüfungen und Wiederholungsversuche bei der SD-Kommunikation.
+*/
+//#SD_CHECK_AND_RETRY definieren
+
+/**
+* LCD-Menüelemente
+*
+* Deaktivieren Sie alle Menüs und zeigen Sie nur den Statusbildschirm an, oder
+* Entfernen Sie einfach einige überflüssige Menüelemente, um Platz freizugeben.
+*/
+//#definiere NO_LCD_MENUS
+//#SLIM_LCD_MENUS definieren
+
+//
+// ENCODER-EINSTELLUNGEN
+//
+// Diese Option überschreibt die Standardanzahl der Encoderimpulse, die benötigt werden, um
+// einen Schritt erzeugen. Sollte für hochauflösende Encoder erhöht werden.
+//
+//#definieren Sie ENCODER_PULSES_PER_STEP 4
+
+//
+// Mit dieser Option können Sie die Anzahl der erforderlichen Schrittsignale überschreiben,
+// Zwischen den nächsten/vorherigen Menüelementen wechseln.
+//
+//#encoder_steps_per_menu_item 1 definieren
+
+/**
+* Encoder-Richtungsoptionen
+*
+* Testen Sie zunächst das Verhalten Ihres Encoders, wobei beide Optionen deaktiviert sind.
+*
+* Umgekehrte Wertbearbeitung und Menünavigation? Aktivieren Sie REVERSE_ENCODER_DIRECTION.
+* Nur umgekehrte Menünavigation? Aktivieren Sie REVERSE_MENU_DIRECTION.
+* Nur umgekehrte Wertbearbeitung? Aktivieren Sie BEIDE Optionen.
+*/
+
+//
+// Diese Option kehrt die Encoderrichtung überall um.
+//
+// Setzen Sie diese Option, wenn im Uhrzeigersinn die Werte abnehmen.
+//
+//#REVERSE_ENCODER_DIRECTION definieren
+
+//
+// Diese Option kehrt die Encoderrichtung für die Navigation durch LCD-Menüs um.
+//
+// Wenn es im Uhrzeigersinn normalerweise nach UNTEN geht, bewirkt dies, dass es nach OBEN geht.
+// Wenn es im Uhrzeigersinn normalerweise nach oben geht, bewirkt dies, dass es nach unten geht.
+//
+//#REVERSE_MENU_DIRECTION definieren
+
+//
+// Diese Option kehrt die Encoderrichtung für „Select Screen“ um.
+//
+// Wenn es im Uhrzeigersinn normalerweise nach LINKS geht, bewegt es sich hier nach RECHTS.
+// Wenn es im Uhrzeigersinn normalerweise nach RECHTS geht, bewegt es sich hier nach LINKS.
+//
+//#REVERSE_SELECT_DIRECTION definieren
+
+//
+// Encoder EMI Rauschfilter
+//
+// Diese Option erhöht die Anzahl der Encoder-Samples, um durch elektromagnetisches Rauschen verursachte Phantomklicks des Encoders herauszufiltern.
+//
+//#ENCODER_NOISE_FILTER definieren
+#wenn AKTIVIERT(ENCODER_NOISE_FILTER)
+#encoder_samples definieren 10
+#endif
+
+//
+// Referenzfahrt einzelner Achsen
+//
+// Fügen Sie dem LCD-Menü einzelne Achsen-Homing-Elemente (Home X, Home Y und Home Z) hinzu.
+//
+//#definieren Sie INDIVIDUAL_AXIS_HOMING_MENU
+//#definieren Sie INDIVIDUAL_AXIS_HOMING_SUBMENU
+
+//
+// LAUTSPRECHER/SUMMER
+//
+// Wenn Sie einen Lautsprecher haben, der Töne wiedergeben kann, aktivieren Sie ihn hier.
+// Standardmäßig geht Marlin davon aus, dass Sie einen Summer mit einer festen Frequenz haben.
+//
+#definieren Sie LAUTSPRECHER
+
+// Beim Starten/bei der seriellen Verbindung einen (nicht ohrenbetäubenden) Startton abspielen
+// des Trigorilla-Boards
+#Startup_Chime definieren
+
+//
+// ENDSTOP-PIEPTON
+//
+// Kurzer 2-kHz-Piepton, wenn Endanschläge erreicht werden
+//
+// #endstop_bEEP definieren
+
+//
+// Die Dauer und Frequenz des UI-Feedback-Sounds.
+// Setzen Sie diese auf 0, um die Audiorückmeldung in den LCD-Menüs zu deaktivieren.
+//
+// Hinweis: Testen Sie die Audioausgabe mit dem G-Code:
+// M300 S<Frequenz Hz> P<Dauer ms>
+//
+//#definieren Sie LCD_FEEDBACK_FREQUENCY_DURATION_MS 2
+//#definieren Sie LCD_FEEDBACK_FREQUENCY_HZ 5000
+
+//========================================================================
+//========================= LCD-/Controller-Auswahl ==========================
+//======================== (Zeichenbasierte LCDs) ==========================
+//========================================================================
+// @Abschnitt LCD
+
+//
+// RepRapDiscount Smart Controller.
+// https://reprap.org/wiki/RepRapDiscount_Smart_Controller
+//
+// Hinweis: Wird normalerweise mit einer weißen Leiterplatte verkauft.
+//
+//#definieren Sie REPRAP_DISCOUNT_SMART_CONTROLLER
+
+//
+// GT2560 (YHCB2004) LCD-Anzeige
+//
+// Erfordert Testato, Koepel Softwarewire-Bibliothek und
+// Andriy Golovnyas LiquidCrystal_AIP31068-Bibliothek.
+//
+//#YHCB2004 definieren
+
+//
+// Original RADDS LCD-Display+Encoder+SD-Kartenleser
+// https://web.archive.org/web/20200719145306/doku.radds.org/dokumentation/lcd-display/
+//
+//#RADDS_DISPLAY definieren
+
+//
+// ULTIMAKER-Controller.
+//
+//#ULTIMAKERCONTROLLER definieren
+
+//
+// ULTIPANEL wie auf Thingiverse gesehen.
+//
+//#ULTIPANEL definieren
+
+//
+// PanelOne von T3P3 (über RAMPS 1.4 AUX2/AUX3)
+// https://reprap.org/wiki/PanelOne
+//
+//#Panel_Eins definieren
+
+//
+// GADGETS3D G3D LCD/SD-Controller
+// https://reprap.org/wiki/RAMPS_1.3/1.4_GADGETS3D_Shield_with_Panel
+//
+// Hinweis: Wird normalerweise mit einer blauen Leiterplatte verkauft.
+//
+//#G3D_PANEL definieren
+
+//
+// RigidBot-Panel V1.0
+//
+//#RIGIDBOT_PANEL definieren
+
+//
+// Makeboard 3D-Druckerteile 3D-Drucker Mini-Display 1602 Mini-Controller
+// https://www.aliexpress.com/item/32765887917.html
+//
+//#definieren Sie MAKEBOARD_MINI_2_LINE_DISPLAY_1602
+
+//
+// ANET und Tronxy 20x4 Controller
+//
+//#define ZONESTAR_LCD // Erfordert, dass ADC_KEYPAD_PIN einem analogen Pin zugewiesen wird.
+// Dieses LCD ist bekanntermaßen anfällig für elektrische Störungen
+// wodurch die Anzeige durcheinander gerät. Durch Drücken einer beliebigen Taste wird sie gelöscht.
+// Dies ist ein LCD2004-Display mit 5 analogen Tasten.
+
+//
+// Generisches zeichenbasiertes LCD mit 16 x 2, 16 x 4, 20 x 2 oder 20 x 4.
+//
+//#ULTRA_LCD definieren
+
+//========================================================================
+//========================= LCD-/Controller-Auswahl ==========================
+//===================== (I2C- und Schieberegister-LCDs) ======================
+//========================================================================
+
+//
+// CONTROLLERTYP: I2C
+//
+// Hinweis: Diese Controller erfordern die Installation von Arduinos LiquidCrystal_I2C
+// Bibliothek. Weitere Informationen: https://github.com/kiyoshigawa/LiquidCrystal_I2C
+//
+
+//
+// Elefu RA Board-Systemsteuerung
+// https://web.archive.org/web/20140823033947/www.elefu.com/index.php?route=product/product&product_id=53
+//
+//#RA_CONTROL_PANEL definieren
+
+//
+// Sainsmart (YwRobot) LCD-Anzeigen
+//
+// Diese erfordern die LiquidCrystal_I2C-Bibliothek:
+// https://github.com/MarlinFirmware/New-LiquidCrystal
+// https://github.com/fmalpartida/New-LiquidCrystal/wiki
+//
+//#LCD_SAINSMART_I2C_1602 definieren
+//#LCD_SAINSMART_I2C_2004 definieren
+
+//
+// Generischer LCM1602 LCD-Adapter
+//
+//#LCM1602 definieren
+
+//
+// PANELOLU2 LCD mit Status-LEDs,
+// separate Encoder- und Klick-Eingänge.
+//
+// Hinweis: Dieser Controller erfordert Arduinos LiquidTWI2-Bibliothek v1.2.3 oder höher.
+// Weitere Informationen: https://github.com/lincomatic/LiquidTWI2
+//
+// Hinweis: Der PANELOLU2 Encoder Click-Eingang kann entweder direkt angeschlossen werden an
+// ein Pin (wenn BTN_ENC auf != -1 definiert ist) oder über I2C lesen (wenn BTN_ENC == -1).
+//
+//#LCD_I2C_PANELOLU2 definieren
+
+//
+// Panucatt VIKI LCD mit Status-LEDs,
+// Integrierte Klick- und L/R/U/D-Tasten, separate Encoder-Eingänge.
+//
+//#LCD_I2C_VIKI definieren
+
+//
+// CONTROLLERTYP: Schieberegister-Panels
+//
+
+//
+// 2-Draht-LCD-SR ohne Verriegelung von https://github.com/fmalpartida/New-LiquidCrystal/wiki/schematics#user-content-ShiftRegister_connection
+// LCD-Konfiguration: https://reprap.org/wiki/SAV_3D_LCD
+//
+//#SAV_3DLCD definieren
+
+//
+// 3-Draht-SR-LCD mit Stroboskop unter Verwendung von 74HC4094
+// https://github.com/mikeshub/SailfishLCD
+// Verwendet den Code direkt von Sailfish
+//
+//#FF_INTERFACEBOARD definieren
+
+//
+// TFT GLCD-Panel mit Marlin-Benutzeroberfläche
+// Panel über SPI- oder I2C-Schnittstelle mit Hauptplatine verbunden.
+// Siehe https://github.com/Serhiy-K/TFTGLCDAdapter
+//
+//#define TFTGLCD_PANEL_SPI
+//#define TFTGLCD_PANEL_I2C
+
+//=========================================================================
+//======================== LCD-/Controller-Auswahl ========================
+//========================= (Grafische LCDs) =========================
+//=========================================================================
+
+//
+// CONTROLLERTYP: Grafisch 128x64 (DOGM)
+//
+// WICHTIG: Für die grafische Anzeige wird die U8glib-Bibliothek benötigt!
+// https://github.com/olikraus/U8glib_Arduino
+//
+// HINWEIS: Wenn das LCD nicht reagiert, müssen Sie möglicherweise die Stecker umkehren.
+//
+
+//
+// RepRapDiscount VOLLGRAFIKER Smart Controller
+// https://reprap.org/wiki/RepRapDiscount_Full_Graphic_Smart_Controller
+//
+//#definieren Sie REPRAP_DISCOUNT_FULL_GRAPHIC_SMART_CONTROLLER
+
+//
+// K.3D Vollgrafik-Smart-Controller
+//
+//#definieren Sie K3D_FULL_GRAPHIC_SMART_CONTROLLER
+
+//
+// ReprapWorld Grafisches LCD
+// https://reprapworld.com/electronics/3d-printer-modules/autonomous-printing/graphical-lcd-screen-v1-0/
+//
+//#definieren Sie REPRAPWORLD_GRAPHICAL_LCD
+
+//
+// Aktivieren Sie eines davon, wenn Sie ein Panucatt-Gerät haben
+// Viki 2.0 oder Mini-Viki mit Grafik-LCD
+// https://www.panucatt.com
+//
+//#VIKI2 definieren
+//#miniVIKI definieren
+
+//
+// Alfawise Ex8 Drucker-LCD gekennzeichnet als WYH L12864 COG
+//
+//#definieren Sie WYH_L12864
+
+//
+// MakerLab Mini Panel mit Grafik
+// Controller- und SD-Unterstützung - https://reprap.org/wiki/Mini_panel
+//
+//#MINIPANEL definieren
+
+//
+// MaKr3d Makr-Panel mit Grafikcontroller und SD-Unterstützung.
+// https://reprap.org/wiki/MaKrPanel
+//
+//#MAKRPANEL definieren
+
+//
+// Adafruit ST7565 Vollgrafik-Controller.
+// https://github.com/eboston/Adafruit-ST7565-Full-Graphic-Controller/
+//
+//#ELB_FULL_GRAPHIC_CONTROLLER definieren
+
+//
+// BQ LCD Smart Controller ausgeliefert von
+// Standardmäßig beim BQ Hephestos 2 und Witbox 2.
+//
+//#BQ_LCD_SMART_CONTROLLER definieren
+
+//
+// Cartesio-Benutzeroberfläche
+// https://web.archive.org/web/20180605050442/mauk.cc/webshop/cartesio-shop/electronics/user-interface
+//
+//#CARTESIO_UI definieren
+
+//
+// LCD für Melzi-Karte mit grafischem LCD
+//
+//#LCD_FOR_MELZI definieren
+
+//
+// Original Ulticontroller vom Ultimaker 2 Drucker mit SSD1309 I2C Display und Encoder
+// https://github.com/Ultimaker/Ultimaker2/tree/master/1249_Ulticontroller_Board_(x1)
+//
+//#ULTI_CONTROLLER definieren
+
+//
+// MKS MINI12864 mit Grafikcontroller und SD-Unterstützung
+// https://reprap.org/wiki/MKS_MINI_12864
+//
+//#define MKS_MINI_12864
+
+//
+// MKS MINI12864 V3 ist ein Alias für FYSETC_MINI_12864_2_1. Typ A/B. NeoPixel RGB-Hintergrundbeleuchtung.
+//
+//#define MKS_MINI_12864_V3
+
+//
+// MKS LCD12864A/B mit Grafikcontroller und SD-Unterstützung. Folgt der MKS_MINI_12864-Pinbelegung.
+// https://www.aliexpress.com/item/33018110072.html
+//
+//#define MKS_LCD12864A
+//#MKS_LCD12864B definieren
+
+//
+// FYSETC-Variante des MINI12864-Grafikcontrollers mit SD-Unterstützung
+// https://wiki.fysetc.com/Mini12864_Panel/
+//
+//#define FYSETC_MINI_12864_X_X // Typ C/D/E/F. Standardmäßig keine anpassbare RGB-Hintergrundbeleuchtung
+//#define FYSETC_MINI_12864_1_2 // Typ C/D/E/F. Einfache RGB-Hintergrundbeleuchtung (immer an)
+//#define FYSETC_MINI_12864_2_0 // Typ A/B. Diskrete RGB-Hintergrundbeleuchtung
+//#define FYSETC_MINI_12864_2_1 // Typ A/B. NeoPixel RGB-Hintergrundbeleuchtung
+//#define FYSETC_GENERIC_12864_1_1 // Größeres Display mit einfacher EIN/AUS-Hintergrundbeleuchtung.
+
+//
+// BigTreeTech Mini 12864 V1.0 / V2.0 ist ein Alias für FYSETC_MINI_12864_2_1. Typ A/B. NeoPixel RGB-Hintergrundbeleuchtung.
+// https://github.com/bigtreetech/MINI-12864
+//
+//#definiere BTT_MINI_12864
+
+//
+// Werksdisplay für Creality CR-10 / CR-7 / Ender-3
+// https://marlinfw.org/docs/hardware/controllers.html#cr10_stockdisplay
+//
+// Verbindung zu EXP1 auf RAMPS und kompatiblen Boards herstellen.
+//
+//#CR10_STOCKDISPLAY definieren
+
+//
+// Ender-2 OEM-Display, eine Variante des MKS_MINI_12864
+//
+//#definiere ENDER2_STOCKDISPLAY
+
+//
+// ANET und Tronxy Grafikcontroller
+//
+// Anet 128x64 Vollgrafik-LCD mit Drehgeber wie beim Anet A6
+// Ein Klon des RepRapDiscount Vollgrafikdisplays, jedoch mit
+// verschiedene Pins/Verkabelungen (siehe pins_ANET_10.h). Aktivieren Sie einen davon.
+//
+//#definiere ANET_FULL_GRAPHICS_LCD
+//#definieren Sie ANET_FULL_GRAPHICS_LCD_ALT_WIRING
+
+//
+// AZSMZ 12864 LCD mit SD
+// https://www.aliexpress.com/item/32837222770.html
+//
+//#define AZSMZ_12864
+
+//
+// Silvergate GLCD-Controller
+// https://github.com/android444/Silvergate
+//
+//#definieren Sie SILVER_GATE_GLCD_CONTROLLER
+
+//
+// eMotion Tech LCD mit SD
+// https://www.reprap-france.com/produit/1234568748-ecran-graphique-128-x-64-points-2-1
+//
+//#definieren Sie EMOTION_TECH_LCD
+
+//=========================================================================
+//============================== OLED-Displays ==============================
+//=========================================================================
+
+//
+// SSD1306 OLED-Vollgrafik-Generikum-Display
+//
+//#define U8GLIB_SSD1306
+
+//
+// SAV OLED-LCD-Modulunterstützung mit entweder SSD1306- oder SH1106-basierten LCD-Modulen
+//
+//#SAV_3DGLCD definieren
+#wenn AKTIVIERT(SAV_3DGLCD)
+#define U8GLIB_SSD1306
+//#definieren Sie U8GLIB_SH1106
+#endif
+
+//
+// TinyBoy2 128x64 OLED / Encoder-Panel
+//
+//#definiere OLED_PANEL_TINYBOY2
+
+//
+// MKS OLED 1,3" 128×64 Vollgrafik-Controller
+// https://reprap.org/wiki/MKS_12864OLED
+//
+// Winziges, aber sehr scharfes OLED-Display
+//
+//#define MKS_12864OLED // Verwendet den SH1106-Controller (Standard)
+//#define MKS_12864OLED_SSD1306 // Verwendet den SSD1306-Controller
+
+//
+// Zonestar OLED 128×64 Vollgrafik-Controller
+//
+//#define ZONESTAR_12864LCD // Grafisch (DOGM) mit ST7920-Controller
+//#define ZONESTAR_12864OLED // 1,3" OLED mit SH1106-Controller (Standard)
+//#define ZONESTAR_12864OLED_SSD1306 // 0,96" OLED mit SSD1306-Controller
+
+//
+// Einstart S OLED SSD1306
+//
+//#define U8GLIB_SH1106_EINSTART
+
+//
+// Overlord OLED-Display/Controller mit I2C-Summer und LEDs
+//
+//#define OVERLORD_OLED
+
+//
+// FYSETC OLED 2,42" 128×64 Vollgrafik-Controller mit WS2812 RGB
+// Wo zu finden: https://www.aliexpress.com/item/4000345255731.html
+//#define FYSETC_242_OLED_12864 // Verwendet den SSD1309-Controller
+
+//
+// K.3D SSD1309 OLED 2,42" 128×64 Vollgrafik-Controller
+//
+//#define K3D_242_OLED_CONTROLLER // Software-SPI
+
+//=========================================================================
+//========================== Erweiterbare UI-Anzeigen ===========================
+//=========================================================================
+
+/**
+* DGUS-Touchdisplay mit DWIN-Betriebssystem. (Wählen Sie eines aus.)
+* HERKUNFT: https://www.aliexpress.com/item/32993409517.html
+* FYSETC: https://www.aliexpress.com/item/32961471929.html
+* MKS: https://www.aliexpress.com/item/1005002008179262.html
+*
+* Flash-Anzeige mit DGUS Displays für Marlin:
+* – Formatieren Sie die SD-Karte mit einer Zuordnungsgröße von 4 KB auf FAT32.
+* – Laden Sie die für Ihren Anzeigetyp angegebenen Dateien herunter.
+* – Stecken Sie die microSD-Karte in die Rückseite des Displays.
+* – Starten Sie das Display und warten Sie, bis das Update abgeschlossen ist.
+*
+* HERKUNFT (Marlin DWIN_SET)
+* - Download https://github.com/coldtobi/Marlin_DGUS_Resources
+* – Kopieren Sie den heruntergeladenen Ordner DWIN_SET auf die SD-Karte.
+* - Produkt: https://www.aliexpress.com/item/32993409517.html
+*
+* FYSETC (Lieferantenstandard)
+* - Laden Sie https://github.com/FYSETC/FYSTLCD-2.0 herunter
+* – Kopieren Sie den heruntergeladenen SCREEN-Ordner auf die SD-Karte.
+* - Produkt: https://www.aliexpress.com/item/32961471929.html
+*
+* HIPRECY (Lieferantenstandard)
+* - Download https://github.com/HiPrecy/Touch-Lcd-LEO
+* – Kopieren Sie den heruntergeladenen Ordner DWIN_SET auf die SD-Karte.
+*
+* MKS (MKS-H43) (Lieferantenstandard)
+* - Download https://github.com/makerbase-mks/MKS-H43
+* – Kopieren Sie den heruntergeladenen Ordner DWIN_SET auf die SD-Karte.
+* - Produkt: https://www.aliexpress.com/item/1005002008179262.html
+*
+* NEU GELADEN (T5UID1)
+* - Download https://github.com/Neo2003/DGUS-reloaded/releases
+* – Kopieren Sie den heruntergeladenen Ordner DWIN_SET auf die SD-Karte.
+*
+* Flash-Anzeige mit DGUS Displays für Marlin:
+* – Formatieren Sie die SD-Karte mit einer Zuordnungsgröße von 4 KB auf FAT32.
+* – Laden Sie die für Ihren Anzeigetyp angegebenen Dateien herunter.
+* – Stecken Sie die microSD-Karte in die Rückseite des Displays.
+* – Starten Sie das Display und warten Sie, bis das Update abgeschlossen ist.
+*/
+//#DGUS_LCD_UI_ORIGIN definieren
+//#definieren Sie DGUS_LCD_UI_FYSETC
+//#definieren Sie DGUS_LCD_UI_HIPRECY
+//#DGUS_LCD_UI_MKS definieren
+//#define DGUS_LCD_UI_RELOADED
+#wenn AKTIVIERT(DGUS_LCD_UI_MKS)
+#define USE_MKS_GREEN_UI
+#endif
+
+//
+// Touchscreen-LCD für Malyan M200/M300-Drucker
+//
+//#definiere MALYAN_LCD
+
+//
+// Touch-UI für FTDI EVE (FT800/FT810)-Displays
+// Alle Konfigurationsoptionen finden Sie in Configuration_adv.h.
+//
+//#TOUCH_UI_FTDI_EVE definieren
+
+//
+// Touchscreen-LCD für Anycubic-Drucker
+//
+//#definieren ANYCUBIC_LCD_I3MEGA
+//#definiere ANYCUBIC_LCD_CHIRON
+#wenn EITHER(ANYCUBIC_LCD_I3MEGA, ANYCUBIC_LCD_CHIRON)
+//#definiere ANYCUBIC_LCD_DEBUG
+//#define ANYCUBIC_LCD_GCODE_EXT // Fügen Sie den Menüeinträgen ".gcode" hinzu, um die Kompatibilität mit DGUS-Klonen zu gewährleisten
+#endif
+
+//
+// 320x240 Nextion 2,8" serieller resistiver TFT-Touchscreen NX3224T028
+//
+//#NEXTION_TFT definieren
+
+//
+// Von Drittanbietern oder Anbietern angepasste Controller-Schnittstellen.
+// Quellen sollten in „src/lcd/extui“ installiert werden.
+//
+//#EXTENSIBLE_UI definieren
+
+#wenn AKTIVIERT(EXTENSIBLE_UI)
+//#define EXTUI_LOCAL_BEEPER // Ermöglicht die Verwendung eines lokalen Beeper-Pins mit externem Display
+#endif
+
+//=========================================================================
+//=============================== Grafische TFTs ===============================
+//=========================================================================
+
+/**
+* Spezifische TFT-Modellvoreinstellungen. Aktivieren Sie eine der folgenden Optionen
+* oder TFT_GENERIC aktivieren und Unteroptionen festlegen.
+*/
+
+//
+// 480x320, 3,5", SPI-Display mit Drehgeber von MKS
+// Normalerweise gepaart mit MKS Robin Nano V2 & V3
+// https://github.com/makerbase-mks/MKS-TFT-Hardware/tree/master/MKS%20TS35
+//
+//#define MKS_TS35_V2_0
+
+//
+// 320 x 240, 2,4 Zoll, FSMC-Display von MKS
+// Normalerweise gepaart mit MKS Robin Nano V1.2
+//
+//#define MKS_ROBIN_TFT24
+
+//
+// 320 x 240, 2,8 Zoll, FSMC-Display von MKS
+// Normalerweise gepaart mit MKS Robin Nano V1.2
+//
+//#define MKS_ROBIN_TFT28
+
+//
+// 320 x 240, 3,2 Zoll, FSMC-Display von MKS
+// Normalerweise gepaart mit MKS Robin Nano V1.2
+//
+//#MKS_ROBIN_TFT32 definieren
+
+//
+// 480 x 320, 3,5 Zoll, FSMC-Display von MKS
+// Normalerweise gepaart mit MKS Robin Nano V1.2
+//
+//#define MKS_ROBIN_TFT35
+
+//
+// 480 x 272, 4,3", FSMC-Display von MKS
+//
+//#define MKS_ROBIN_TFT43
+
+//
+// 320 x 240, 3,2 Zoll, FSMC-Display von MKS
+// Normalerweise gepaart mit MKS Robin
+//
+//#define MKS_ROBIN_TFT_V1_1R
+
+//
+// 480 x 320, 3,5", FSMC-Standarddisplay von Tronxy
+//
+//#TFT_TRONXY_X5SA definieren
+
+//
+// 480 x 320, 3,5", FSMC-Standarddisplay von AnyCubic
+//
+//#definiere ANYCUBIC_TFT35
+
+//
+// 320 x 240, 2,8", FSMC-Standarddisplay von Longer/Alfawise
+//
+//#definiere LONGER_LK_TFT28
+
+//
+// 320x240, 2,8", FSMC-Standarddisplay von ET4
+//
+//#definiere ANET_ET4_TFT28
+
+//
+// 480x320, 3,5", FSMC-Standarddisplay von ET5
+//
+//#definiere ANET_ET5_TFT35
+
+//
+// 1024x600, 7", RGB-Standarddisplay mit Drehgeber von BIQU BX
+// https://github.com/bigtreetech/BIQU-BX/tree/master/Hardware
+//
+//#definieren Sie BIQU_BX_TFT70
+
+//
+// 480 x 320, 3,5", SPI-Standarddisplay mit Drehgeber aus der BIQU B1 SE-Serie
+// https://github.com/bigtreetech/TFT35-SPI/tree/master/v1
+//
+//#definiere BTT_TFT35_SPI_V1_0
+
+//
+// Generisches TFT mit detaillierten Optionen
+//
+//#TFT_GENERIC definieren
+#wenn AKTIVIERT(TFT_GENERIC)
+// :[ 'AUTO', 'ST7735', 'ST7789', 'ST7796', 'R61505', 'ILI9328', 'ILI9341', 'ILI9488' ]
+#define TFT_DRIVER AUTO
+
+// Schnittstelle. Aktivieren Sie eine der folgenden Optionen:
+//#TFT_INTERFACE_FSMC definieren
+//#TFT_INTERFACE_SPI definieren
+
+// TFT-Auflösung. Aktivieren Sie eine der folgenden Optionen:
+//#TFT_RES_320x240 definieren
+//#define TFT_RES_480x272
+//#TFT_RES_480x320 definieren
+//#define TFT_RES_1024x600
+#endif
+
+/**
+* TFT UI - Auswahl der Benutzeroberfläche. Aktivieren Sie eine der folgenden Optionen:
+*
+* TFT_CLASSIC_UI - Emuliertes DOGM - 128x64 hochskaliert
+* TFT_COLOR_UI - Marlin-Standardmenüs, berührungsfreundlich, mit voller TFT-Funktionalität
+* TFT_LVGL_UI – Eine moderne Benutzeroberfläche mit LVGL
+*
+* Für LVGL_UI kopieren Sie auch den Ordner 'assets' aus dem Build-Verzeichnis in das
+* Root Ihrer SD-Karte, zusammen mit der kompilierten Firmware.
+*/
+//#TFT_CLASSIC_UI definieren
+//#TFT_COLOR_UI definieren
+//#TFT_LVGL_UI definieren
+
+#wenn AKTIVIERT(TFT_COLOR_UI)
+//#define TFT_SHARED_IO // SPI wird zwischen TFT-Display und anderen Geräten geteilt. Deaktivieren Sie die asynchrone Datenübertragung
+#endif
+
+#wenn AKTIVIERT(TFT_LVGL_UI)
+//#define MKS_WIFI_MODULE // MKS WiFi-Modul
+#endif
+
+/**
+* TFT-Rotation. Stellen Sie einen der folgenden Werte ein:
+*
+* TFT_ROTATE_90, TFT_ROTATE_90_MIRROR_X, TFT_ROTATE_90_MIRROR_Y,
+* TFT_ROTATE_180, TFT_ROTATE_180_MIRROR_X, TFT_ROTATE_180_MIRROR_Y,
+* TFT_ROTATE_270, TFT_ROTATE_270_MIRROR_X, TFT_ROTATE_270_MIRROR_Y,
+* TFT_MIRROR_X, TFT_MIRROR_Y, TFT_KEINE_ROTATION
+*/
+//#define TFT_ROTATION TFT_NO_ROTATION
+
+//=========================================================================
+//============================ Andere Controller ============================
+//=========================================================================
+
+//
+// Ender-3 v2 OEM-Display. Ein DWIN-Display mit Drehgeber.
+//
+//#define DWIN_CREALITY_LCD // Creality-Benutzeroberfläche
+//#define DWIN_LCD_PROUI // Pro UI von MRiscoC
+//#define DWIN_CREALITY_LCD_JYERSUI // Jyers UI von Jacob Myers
+//#define DWIN_MARLINUI_PORTRAIT // MarlinUI (Hochformat)
+//#define DWIN_MARLINUI_LANDSCAPE // MarlinUI (Querformat)
+
+//
+// Touchscreen-Einstellungen
+//
+//#TOUCH_SCREEN definieren
+#wenn AKTIVIERT(TOUCH_SCREEN)
+#define BUTTON_DELAY_EDIT 50 // (ms) Tastenwiederholungsverzögerung für Bearbeitungsbildschirme
+#define BUTTON_DELAY_MENU 250 // (ms) Tastenwiederholungsverzögerung für Menüs
+
+//#define DISABLE_ENCODER // Deaktiviere den Klick-Encoder, falls vorhanden
+//#define TOUCH_IDLE_SLEEP_MINS 5 // (Minuten) Ruhezustand des Displays nach einer Zeit der Inaktivität. Eingestellt mit M255 S.
+
+#TOUCH_SCREEN_CALIBRATION definieren
+
+//#definieren TOUCH_CALIBRATION_X 12316
+//#definieren TOUCH_CALIBRATION_Y -8981
+//#definiere TOUCH_OFFSET_X -43
+//#TOUCH_OFFSET_Y definieren 257
+//#TOUCH_ORIENTATION TOUCH_LANDSCAPE definieren
+
+#wenn BEIDE(TOUCH_SCREEN_CALIBRATION, EEPROM_SETTINGS)
+#define TOUCH_CALIBRATION_AUTO_SAVE // Erfolgreiche Kalibrierungswerte automatisch im EEPROM speichern
+#endif
+
+#wenn AKTIVIERT(TFT_COLOR_UI)
+//#SINGLE_TOUCH_NAVIGATION definieren
+#endif
+#endif
+
+//
+// RepRapWorld REPRAPWORLD_KEYPAD v1.1
+// https://reprapworld.com/products/electronics/ramps/keypad_v1_0_fully_assembled/
+//
+//#REPRAPWORLD_KEYPAD definieren
+//#define REPRAPWORLD_KEYPAD_MOVE_STEP 10.0 // (mm) Distanz, die pro Tastendruck zurückgelegt werden muss
+
+//
+// EasyThreeD ET-4000+ mit Tastereingang und Status-LED
+//
+//#EASYTHREED_UI definieren
+
+//=========================================================================
+//================================ Zusätzliche Funktionen ==============================
+//=========================================================================
+
+// @Abschnitt Fans
+
+// Anzahl der benutzergesteuerten Lüfter festlegen. Deaktivieren, um alle platinendefinierten Lüfter zu verwenden.
+// :[1,2,3,4,5,6,7,8]
+//#definieren Sie NUM_M106_FANS 1
+
+// Verwenden Sie Software-PWM, um den Lüfter anzutreiben, wie für die Heizungen. Dies verwendet eine sehr niedrige Frequenz
+// was nicht so nervig ist wie beim Hardware-PWM. Andererseits, wenn diese Frequenz
+// zu niedrig ist, sollten Sie auch SOFT_PWM_SCALE erhöhen.
+#define FAN_SOFT_PWM
+
+// Eine Erhöhung um 1 verdoppelt die Software-PWM-Frequenz,
+// Beeinflusst Heizungen und den Lüfter, wenn FAN_SOFT_PWM aktiviert ist.
+// Allerdings wird die Steuerungsauflösung bei jedem Inkrement halbiert;
+// Beim Wert Null gibt es 128 effektive Kontrollpositionen.
+// :[0,1,2,3,4,5,6,7]
+#define SOFT_PWM_SCALE 2
+
+// Wenn SOFT_PWM_SCALE auf einen Wert größer als 0 gesetzt ist, kann Dithering
+// verwendet werden, um den damit verbundenen Auflösungsverlust zu verringern. Wenn aktiviert,
+// einige der PWM-Zyklen werden gestreckt, so dass im Durchschnitt die gewünschten
+// Arbeitszyklus wird erreicht.
+//#SOFT_PWM_DITHER definieren
+
+// @Abschnitt Extras
+
+// Unterstützung für den BariCUDA Paste Extruder
+//#definiere BARICUDA
+
+// @Abschnitt Lichter
+
+// Temperaturstatus-LEDs, die die Hotend- und Betttemperatur anzeigen.
+// Wenn alle Hotends, die Betttemperatur und die Zieltemperatur unter 54 °C liegen
+// dann leuchtet die BLAUE LED. Andernfalls leuchtet die ROTE LED. (1C Hysterese)
+//#TEMP_STAT_LEDS definieren
+
+// Unterstützung für BlinkM/CyzRgb
+//#BLINKM definieren
+
+// Unterstützung für PCA9632 PWM LED-Treiber
+//#PCA9632 definieren
+
+// Unterstützung für PCA9533 PWM LED-Treiber
+//#PCA9533 definieren
+
+/**
+* RGB-LED-/LED-Streifen-Steuerung
+*
+* Aktivieren Sie die Unterstützung für eine RGB-LED, die an 5-V-Digitalpins angeschlossen ist, oder
+* ein RGB-Streifen, der mit MOSFETs verbunden ist, die über digitale Pins gesteuert werden.
+*
+* Fügt den Befehl M150 hinzu, um die Farbe der LED (oder des LED-Streifens) einzustellen.
+* Wenn die Pins PWM-fähig sind (z. B. 4, 5, 6, 11), dann ist ein Bereich von
+* Luminanzwerte können von 0 bis 255 eingestellt werden.
+* Für NeoPixel LED ist auch ein Gesamthelligkeitsparameter verfügbar.
+*
+* === ACHTUNG ===
+* LED-Streifen benötigen einen MOSFET-Chip zwischen PWM-Leitungen und LEDs,
+* da der Arduino den von den LEDs benötigten Strom nicht verarbeiten kann.
+* Die Nichtbeachtung dieser Vorsichtsmaßnahme kann Ihren Arduino zerstören!
+*
+* HINWEIS: Es wird ein separates 5V-Netzteil benötigt! Die NeoPixel LED benötigt
+* mehr Strom als der lineare 5-V-Regler von Arduino erzeugen kann.
+*
+* Erfordert eine PWM-Frequenz zwischen 50 <> 100 Hz (HAL oder Variante prüfen)
+* Verwenden Sie nach Möglichkeit FAST_PWM_FAN, um das Lüftergeräusch zu reduzieren.
+*/
+
+// LED-Typ. Aktivieren Sie nur eine der folgenden beiden Optionen:
+//#RGB_LED definieren
+//#RGBW_LED definieren
+
+#wenn ENTWEDER(RGB_LED, RGBW_LED)
+//#RGB_LED_R_PIN 34 definieren
+//#RGB_LED_G_PIN 43 definieren
+//#RGB_LED_B_PIN 35 definieren
+//#definiere RGB_LED_W_PIN -1
+#endif
+
+#wenn BELIEBIG(RGB_LED, RGBW_LED, PCA9632)
+//#define RGB_STARTUP_TEST // Für PWM-Pins, zwischen allen Farben überblenden
+#wenn AKTIVIERT(RGB_STARTUP_TEST)
+#define RGB_STARTUP_TEST_INNER_MS 10 // (ms) Reduzieren oder erhöhen Sie die Überblendgeschwindigkeit
+#endif
+#endif
+
+// Unterstützung für Adafruit NeoPixel LED-Treiber
+//#definiere NEOPIXEL_LED
+#wenn AKTIVIERT(NEOPIXEL_LED)
+#define NEOPIXEL_TYPE NEO_GRBW // NEO_GRBW, NEO_RGBW, NEO_GRB, NEO_RBG usw.
+// Siehe https://github.com/adafruit/Adafruit_NeoPixel/blob/master/Adafruit_NeoPixel.h
+#define NEOPIXEL_PIN 4 // LED-Treiber-Pin
+//#definieren Sie NEOPIXEL2_TYPE NEOPIXEL_TYPE
+//#definiere NEOPIXEL2_PIN 5
+#define NEOPIXEL_PIXELS 30 // Anzahl der LEDs im Streifen. (Längster Streifen, wenn NEOPIXEL2_SEPARATE deaktiviert ist.)
+#define NEOPIXEL_IS_SEQUENTIAL // Sequentielle Anzeige für Temperaturänderungen – LED für LED. Deaktivieren, um alle LEDs auf einmal zu ändern.
+#define NEOPIXEL_BRIGHTNESS 127 // Anfangshelligkeit (0-255)
+//#define NEOPIXEL_STARTUP_TEST // Beim Start durch die Farben blättern
+
+// Unterstützung für zweiten Adafruit NeoPixel-LED-Treiber, gesteuert mit M150 S1 ...
+//#definiere NEOPIXEL2_SEPARATE
+#wenn AKTIVIERT(NEOPIXEL2_SEPARATE)
+#define NEOPIXEL2_PIXELS 15 // Anzahl der LEDs im zweiten Streifen
+#define NEOPIXEL2_BRIGHTNESS 127 // Anfangshelligkeit (0-255)
+#define NEOPIXEL2_STARTUP_TEST // Beim Start durch die Farben blättern
+#define NEOPIXEL_M150_DEFAULT -1 // Standardstreifen für M150 ohne „S“. Verwenden Sie -1, um alles auf Standard festzulegen.
+#anders
+//#define NEOPIXEL2_INSERIES // Standardverhalten ist NeoPixel 2 parallel
+#endif
+
+// Verwenden Sie einige der NeoPixel-LEDs für statische (Hintergrund-)Beleuchtung
+//#define NEOPIXEL_BKGD_INDEX_FIRST 0 // Index der ersten Hintergrund-LED
+//#define NEOPIXEL_BKGD_INDEX_LAST 5 // Index der letzten Hintergrund-LED
+//#define NEOPIXEL_BKGD_COLOR { 255, 255, 255, 0 } // R, G, B, W
+//#define NEOPIXEL_BKGD_ALWAYS_ON // Die Hintergrundbeleuchtung eingeschaltet lassen, wenn andere NeoPixels ausgeschaltet sind
+#endif
+
+/**
+* Druckerereignis-LEDs
+*
+* Während des Druckens zeigen die LEDs den Druckerstatus an:
+*
+* - Wechseln Sie allmählich von blau zu violett, wenn das beheizte Bett die Zieltemperatur erreicht
+* - Allmählicher Wechsel von violett zu rot, wenn das Hotend die Temperatur erreicht
+* - Wechsel zu Weiß, um die Arbeitsfläche zu beleuchten
+* - Wechselt auf Grün, sobald der Druck abgeschlossen ist
+* - Ausschalten, nachdem der Druckvorgang abgeschlossen ist und der Benutzer eine Taste gedrückt hat
+*/
+#wenn BELIEBIG(BLINKM, RGB_LED, RGBW_LED, PCA9632, PCA9533, NEOPIXEL_LED)
+#define PRINTER_EVENT_LEDS
+#endif
+
+// @Abschnitt Servos
+
+/**
+* Anzahl der Servos
+*
+* Für einige Servo-bezogene Optionen wird NUM_SERVOS automatisch eingestellt.
+* Stellen Sie dies manuell ein, wenn zusätzliche Servos manuell gesteuert werden müssen.
+* Auf 0 setzen, um die Servo-Unterstützung auszuschalten.
+*/
+#wenn AKTIVIERT(KNUTWURST_CHIRON)
+#define NUM_SERVOS 1 // Hinweis: Der Servoindex beginnt bei M280-M282-Befehlen mit 0
+#endif
+
+// (ms) Verzögerung vor dem Beginn der nächsten Bewegung, um dem Servo Zeit zu geben, seinen Zielwinkel zu erreichen.
+// 300 ms sind ein guter Wert, aber Sie können es mit einer geringeren Verzögerung versuchen.
+// Wenn das Servo die gewünschte Position nicht erreichen kann, erhöhen Sie es.
+#define SERVO_DELAY { 300 }
+
+// Servos nur während der Bewegung mit Strom versorgen, sonst ausschalten, um Jitter zu vermeiden
+//#definieren Sie DEACTIVATE_SERVOS_AFTER_MOVE
+
+// Servowinkel mit M281 editieren und mit M500 im EEPROM speichern
+//#EDITABLE_SERVO_ANGLES definieren
+
+// Deaktivieren Sie das Servo mit M282, um Stromverbrauch, Lärm und Wärme bei Nichtgebrauch zu reduzieren
+//#SERVO_DETACH_GCODE definieren
+
