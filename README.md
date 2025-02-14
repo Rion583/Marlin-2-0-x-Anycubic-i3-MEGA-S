@@ -2,6 +2,7 @@
 
 ## Übersicht
 
+Marlin ist für die Erstellung mit der **PlatformIO IDE**- Erweiterung für **Visual Studio Code** optimiert . Sie können Marlin weiterhin mit **Arduino IDE** erstellen und wir hoffen, das Arduino-Build-Erlebnis zu verbessern, aber derzeit ist PlatformIO die bessere Wahl.
 Marlin is optimized to build with the **PlatformIO IDE** extension for **Visual Studio Code**. You can still build Marlin with **Arduino IDE**, and we hope to improve the Arduino build experience, but at this time PlatformIO is the better choice.
 
 ### Wenn dir gefällt, was ich mache, kannst du mir hier einen Kaffee spendieren*: [![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://paypal.me/oliverkoester)
